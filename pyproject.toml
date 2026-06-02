@@ -1,0 +1,10 @@
+[project]
+name = "scubaduikers"
+version = "0.1.0"
+description = "scubaduikers de start van jullie duik"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.136.3",
+    "sqlmodel>=0.0.38",
+]
