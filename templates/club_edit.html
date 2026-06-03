@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.name }} bewerken – Scubaduikers{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <h1>Club bewerken</h1>
+
+    {% if error %}
+    <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="/clubs/{{ club.id }}/edit">
+        <div class="form-group">
+            <label for="name">Clubnaam</label>
+            <input type="text" id="name" name="name" value="{{ club.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Locatie</label>
+            <input type="text" id="location" name="location" value="{{ club.location or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="website">Website</label>
+            <input type="url" id="website" name="website" placeholder="https://" value="{{ club.website or '' }}">
+        </div>
+
+        <button type="submit">Opslaan</button>
+    </form>
+
+    <p class="form-footer"><a href="/clubs/{{ club.id }}">Terug naar club</a></p>
+</section>
+{% endblock %}

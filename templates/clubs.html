@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Duikclubs – Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="page-header">
+        <h1>Duikclubs</h1>
+        {% if request.session.get('user_id') %}
+        <a href="/clubs/new" class="btn btn-primary">Nieuwe club aanmaken</a>
+        {% endif %}
+    </div>
+
+    {% if not club_data %}
+    <p class="empty-state">Er zijn nog geen duikclubs aangemaakt.</p>
+    {% endif %}
+
+    <div class="card-grid">
+    {% for entry in club_data %}
+    {% set club = entry.club %}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title"><a href="/clubs/{{ club.id }}">{{ club.name }}</a></h2>
+            {% if club.location %}
+            <p class="card-meta">📍 {{ club.location }}</p>
+            {% endif %}
+            {% if club.website %}
+            <p class="card-meta">
+                <a href="{{ club.website }}" target="_blank" rel="noopener noreferrer">{{ club.website }}</a>
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="card-footer">
+            {% if entry.user_role == "admin" %}
+                <span class="badge badge-admin">Admin</span>
+            {% elif entry.user_role == "member" %}
+                <span class="badge badge-member">Lid</span>
+            {% elif entry.has_pending_request %}
+                <span class="badge badge-pending">Aanvraag in behandeling</span>
+            {% elif request.session.get('user_id') %}
+                <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
+                    <button type="submit" class="btn btn-sm">Lid worden</button>
+                </form>
+            {% else %}
+                <a href="/login" class="btn btn-sm">Inloggen om lid te worden</a>
+            {% endif %}
+        </div>
+
+        {% if entry.pending_requests %}
+        <div class="card-requests">
+            <h3>Lidmaatschapsaanvragen ({{ entry.pending_requests | length }})</h3>
+            <ul class="request-list">
+            {% for item in entry.pending_requests %}
+            <li class="request-item">
+                <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
+                <span class="request-actions">
+                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
+                    </form>
+                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
+                    </form>
+                </span>
+            </li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}

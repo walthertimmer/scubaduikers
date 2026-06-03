@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dive.title if dive.title else 'Duik op ' ~ dive.date }} – Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="page-header">
+        <h1>{% if dive.title %}{{ dive.title }}{% else %}Duik op {{ dive.date }}{% endif %}</h1>
+        <div style="display:flex; gap: 0.5rem; align-items: center;">
+            {% if is_organiser %}
+            <a href="/dives/{{ dive.id }}/edit" class="btn btn-sm">✏️ Bewerken</a>
+            {% endif %}
+            <a href="/dives" class="btn">← Terug naar duiken</a>
+        </div>
+    </div>
+
+    {% if flash_error %}
+    <p class="form-error">{{ flash_error }}</p>
+    {% endif %}
+
+    <div class="card" style="max-width: 700px;">
+        <div class="card-body">
+            <div class="dive-header">
+                {% if dive.join_policy == "club_only" %}
+                    <span class="badge badge-club">Alleen leden</span>
+                {% elif dive.join_policy == "password_protected" %}
+                    <span class="badge badge-locked">Besloten</span>
+                {% else %}
+                    <span class="badge badge-open">Open</span>
+                {% endif %}
+            </div>
+
+            <p class="card-meta">📅 {{ dive.date }}</p>
+
+            {% if site %}
+            <p class="card-meta">📍 {{ site.name }}{% if site.location %}, {{ site.location }}{% endif %}</p>
+            {% if site.max_depth %}
+            <p class="card-meta">📏 Max diepte: {{ site.max_depth }} m</p>
+            {% endif %}
+            {% if site.description %}
+            <p class="dive-notes">{{ site.description }}</p>
+            {% endif %}
+            {% endif %}
+
+            <p class="card-meta">
+                🤿 Georganiseerd door
+                {% if organiser_club %}
+                    {{ organiser_club.name }}
+                    {% if organiser_user %} ({{ organiser_user.name }}){% endif %}
+                {% elif organiser_user %}
+                    {{ organiser_user.name }}
+                {% else %}
+                    onbekend
+                {% endif %}
+            </p>
+
+            {% if dive.description %}
+            <p class="dive-notes">{{ dive.description }}</p>
+            {% endif %}
+        </div>
+
+        <div class="card-footer">
+            <span class="participant-count">👥 {{ participants | length }} deelnemer{{ 's' if participants | length != 1 else '' }}</span>
+
+            {% if is_participant %}
+                <span class="badge badge-member">Jij doet mee</span>
+                <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-danger">Afmelden</button>
+                </form>
+            {% elif not request.session.get('user_id') %}
+                <a href="/login" class="btn btn-sm">Inloggen om mee te doen</a>
+            {% elif can_join %}
+                {% if needs_password %}
+                <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Wachtwoord"
+                        required
+                        class="join-password-input"
+                    >
+                    <button type="submit" class="btn btn-sm">Aanmelden</button>
+                </form>
+                {% else %}
+                <form method="post" action="/dives/{{ dive.id }}/join" style="display:inline">
+                    <button type="submit" class="btn btn-sm">Aanmelden</button>
+                </form>
+                {% endif %}
+            {% elif dive.join_policy == "club_only" %}
+                <span class="badge badge-pending">Niet lid van club</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if participants %}
+    <h2 style="margin-top: 2rem;">Deelnemers</h2>
+    <div class="card-grid">
+        {% for person in participants %}
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title"><a href="/users/{{ person.id }}">{{ person.name }}</a></h3>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<section id="reacties" style="max-width: 700px; margin-top: 2rem;">
+    <h2>Reacties</h2>
+
+    {% if comments %}
+    <div class="comment-list">
+        {% for comment in comments %}
+        <div class="card" style="margin-bottom: 0.75rem;">
+            <div class="card-body">
+                <p style="margin: 0 0 0.25rem 0;">
+                    <strong>
+                        {% set author = comment_users[comment.user_id] %}
+                        {% if author %}<a href="/users/{{ author.id }}">{{ author.name }}</a>{% else %}Onbekend{% endif %}
+                    </strong>
+                    <span class="card-meta" style="margin-left: 0.5rem;">{{ comment.created_at.strftime('%d-%m-%Y %H:%M') }}</span>
+                </p>
+                <p style="margin: 0;">{{ comment.content }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="card-meta">Nog geen reacties.</p>
+    {% endif %}
+
+    {% if request.session.get('user_id') %}
+    <form method="post" action="/dives/{{ dive.id }}/comments" style="margin-top: 1rem;">
+        <div class="form-group">
+            <label for="comment-content">Schrijf een reactie</label>
+            <textarea id="comment-content" name="content" rows="3" required placeholder="Jouw reactie…" style="width: 100%;"></textarea>
+        </div>
+        <button type="submit" class="btn">Versturen</button>
+    </form>
+    {% else %}
+    <p><a href="/login">Log in</a> om een reactie te plaatsen.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Profiel bewerken – {{ user.name }}{% endblock %}
+
+{% block content %}
+<section>
+    <h1>Profiel bewerken</h1>
+
+    {% if saved %}
+    <p class="form-success">Profiel opgeslagen.</p>
+    {% endif %}
+
+    <form method="post" action="/profile">
+        <div class="form-group">
+            <label for="description">Over mij</label>
+            <textarea id="description" name="description" rows="5" class="form-control">{{ user.description or '' }}</textarea>
+            <p class="form-hint">Deze tekst is zichtbaar voor andere gebruikers op jouw openbare profielpagina.</p>
+        </div>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+    </form>
+</section>
+{% endblock %}

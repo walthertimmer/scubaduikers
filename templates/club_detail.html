@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ club.name }} – Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="page-header">
+        <h1>{{ club.name }}</h1>
+        {% if user_role == "admin" %}
+            <span class="badge badge-admin">Admin</span>
+            <a href="/clubs/{{ club.id }}/edit" class="btn btn-secondary">Bewerken</a>
+        {% elif user_role == "member" %}
+            <span class="badge badge-member">Lid</span>
+        {% elif has_pending_request %}
+            <span class="badge badge-pending">Aanvraag in behandeling</span>
+        {% elif request.session.get('user_id') %}
+            <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
+                <button type="submit" class="btn btn-primary">Lid worden</button>
+            </form>
+        {% else %}
+            <a href="/login" class="btn btn-primary">Inloggen om lid te worden</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            {% if club.location %}
+            <p class="card-meta">📍 {{ club.location }}</p>
+            {% endif %}
+            {% if club.website %}
+            <p class="card-meta">
+                🌐 <a href="{{ club.website }}" target="_blank" rel="noopener noreferrer">{{ club.website }}</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2>Leden ({{ members | length }})</h2>
+    {% if members %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Naam</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in members %}
+        <tr>
+            <td><a href="/users/{{ entry.user.id }}">{{ entry.user.name }}</a></td>
+            <td>
+                {% if entry.role == "admin" %}
+                    <span class="badge badge-admin">Admin</span>
+                {% else %}
+                    <span class="badge badge-member">Lid</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="empty-state">Deze club heeft nog geen leden.</p>
+    {% endif %}
+
+    {% if pending_requests %}
+    <h2>Lidmaatschapsaanvragen ({{ pending_requests | length }})</h2>
+    <ul class="request-list">
+    {% for item in pending_requests %}
+    <li class="request-item">
+        <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
+        <span class="request-actions">
+            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
+            </form>
+            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
+                <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
+            </form>
+        </span>
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    <p><a href="/clubs">&larr; Terug naar clubs</a></p>
+</section>
+{% endblock %}

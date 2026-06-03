@@ -1,0 +1,21 @@
+# Secrets — never bake into the image
+.env
+.env.*
+!.env.example
+
+# Development artefacts
+.venv/
+__pycache__/
+*.py[cod]
+
+# Database files (runtime data, not source)
+*.db
+*.db-shm
+*.db-wal
+
+# Version control
+.git/
+.gitignore
+
+# CI/CD (not needed at runtime)
+.github/

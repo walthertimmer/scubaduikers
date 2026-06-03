@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Inloggen – Scubaduikers{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <h1>Inloggen</h1>
+
+    {% if error %}
+    <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    {% if show_resend %}
+    <form method="post" action="/resend-verification">
+        <input type="hidden" name="email" value="{{ resend_email }}">
+        <p class="form-footer">
+            <button type="submit" class="btn-link">Stuur de bevestigingsmail opnieuw</button>
+        </p>
+    </form>
+    {% endif %}
+
+    <form method="post" action="/login">
+        <div class="form-group">
+            <label for="email">E-mailadres</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Wachtwoord</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+
+        <button type="submit">Inloggen</button>
+    </form>
+
+    {% if request.query_params.get('verified') %}
+    <p class="form-success">Je e-mailadres is bevestigd. Je kunt nu inloggen.</p>
+    {% endif %}
+
+    <p class="form-footer"><a href="/forgot-password">Wachtwoord vergeten?</a></p>
+    <p class="form-footer">Nog geen account? <a href="/register">Account aanmaken</a></p>
+</section>
+{% endblock %}

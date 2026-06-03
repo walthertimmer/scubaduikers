@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}scubaduikers.nl{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" type="image/avif" href="/static/scubaduikers.avif">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var btn = document.querySelector('.nav-hamburger');
+            var menu = document.getElementById('nav-menu');
+            btn.addEventListener('click', function () {
+                var open = menu.classList.toggle('open');
+                btn.setAttribute('aria-expanded', open);
+            });
+        });
+    </script>
+    {% if ga_id %}
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ ga_id }}');
+    </script>
+    {% endif %}
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo"><img src="/static/scubaduikers.avif" alt=""><span>scubaduikers.nl</span></a>
+            <button class="nav-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
+            <ul id="nav-menu">
+                <li><a href="/clubs">duikclubs</a></li>
+                <li><a href="/dives">duiken</a></li>
+                {% if not request.session.get('user_name') %}<li><a href="/register">registreren</a></li>{% endif %}                {% if request.session.get('user_name') %}
+                <li class="nav-user">
+                    <a href="/profile">{{ request.session.get('user_name') }}</a>
+                    <form method="post" action="/logout" style="display:inline">
+                        <button type="submit" class="nav-logout">(uitloggen)</button>
+                    </form>
+                </li>
+                {% else %}
+                <li><a href="/login">inloggen</a></li>
+                {% endif %}            
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <strong>scubaduikers.nl</strong>
+                <span>de start van je duik</span>
+            </div>
+            <nav class="footer-links">
+                <a href="/wijzigingen">wijzigingen</a>
+                <a href="/contact">contact</a>
+                <a href="/privacy">privacy</a>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>

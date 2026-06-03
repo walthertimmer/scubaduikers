@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Bevestigingsmail verstuurd – Scubaduikers{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <h1>Controleer je e-mail</h1>
+    <p>
+        We hebben een bevestigingsmail verstuurd naar <strong>{{ email }}</strong>.
+        Klik op de link in die e-mail om je account te activeren.
+    </p>
+    <p class="form-footer">Terug naar <a href="/login">inloggen</a></p>
+</section>
+{% endblock %}

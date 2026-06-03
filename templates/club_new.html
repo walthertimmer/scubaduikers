@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Nieuwe duikclub – Scubaduikers{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <h1>Nieuwe duikclub aanmaken</h1>
+
+    {% if error %}
+    <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="/clubs">
+        <div class="form-group">
+            <label for="name">Clubnaam</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="location">Locatie</label>
+            <input type="text" id="location" name="location">
+        </div>
+
+        <div class="form-group">
+            <label for="website">Website</label>
+            <input type="url" id="website" name="website" placeholder="https://">
+        </div>
+
+        <button type="submit">Club aanmaken</button>
+    </form>
+
+    <p class="form-footer"><a href="/clubs">Terug naar clubs</a></p>
+</section>
+{% endblock %}

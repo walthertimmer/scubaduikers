@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.name }} – Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <h1>{{ profile_user.name }}</h1>
+
+    {% if profile_user.description %}
+    <p>{{ profile_user.description }}</p>
+    {% else %}
+    <p class="empty-state">Deze gebruiker heeft nog geen beschrijving toegevoegd.</p>
+    {% endif %}
+</section>
+{% endblock %}

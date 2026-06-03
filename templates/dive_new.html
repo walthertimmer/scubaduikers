@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Duik plannen – Scubaduikers{% endblock %}
+
+{% block content %}
+<section class="form-section" style="max-width: 560px;">
+    <h1>Duik plannen</h1>
+
+    {% if error %}
+    <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="/dives" id="dive-form">
+
+        <div class="form-group">
+            <label for="title">Titel <span class="field-optional">(optioneel)</span></label>
+            <input type="text" id="title" name="title" placeholder="bijv. Wrakduik Zeeland">
+        </div>
+
+        <div class="form-group">
+            <label for="dive_date">Datum</label>
+            <input type="date" id="dive_date" name="dive_date" min="{{ today }}" required>
+        </div>
+
+        <fieldset class="form-fieldset">
+            <legend>Duiklocatie</legend>
+            <div class="form-group">
+                <label for="site_name">Naam van de locatie</label>
+                <input type="text" id="site_name" name="site_name" required placeholder="bijv. Grevelingenmeer">
+            </div>
+            <div class="form-group">
+                <label for="site_location">Plaatsnaam / regio</label>
+                <input type="text" id="site_location" name="site_location" required placeholder="bijv. Zeeland">
+            </div>
+        </fieldset>
+
+        <div class="form-group">
+            <label for="description">Beschrijving <span class="field-optional">(optioneel)</span></label>
+            <textarea id="description" name="description" rows="3" placeholder="Extra informatie over de duik…"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="join_policy">Wie kan meedoen?</label>
+            <select id="join_policy" name="join_policy" onchange="updateFormVisibility()">
+                <option value="open">Open voor iedereen</option>
+                {% if clubs %}
+                <option value="club_only">Alleen voor clubleden</option>
+                {% endif %}
+                <option value="password_protected">Met wachtwoord (besloten)</option>
+            </select>
+        </div>
+
+        {% if clubs %}
+        <div class="form-group" id="club-group">
+            <label for="club_id">Organiserende club <span class="field-optional">(optioneel)</span></label>
+            <select id="club_id" name="club_id">
+                <option value="">– Geen club –</option>
+                {% for club in clubs %}
+                <option value="{{ club.id }}">{{ club.name }}</option>
+                {% endfor %}
+            </select>
+            <small class="field-hint">Vereist bij "alleen voor clubleden".</small>
+        </div>
+        {% else %}
+        <input type="hidden" name="club_id" value="">
+        {% endif %}
+
+        <div class="form-group" id="password-group" style="display:none">
+            <label for="join_password">Wachtwoord voor deelname</label>
+            <input type="password" id="join_password" name="join_password" minlength="4">
+        </div>
+
+        <button type="submit">Duik plannen</button>
+    </form>
+
+    <p class="form-footer"><a href="/dives">Terug naar duiken</a></p>
+</section>
+
+<script>
+function updateFormVisibility() {
+    var policy = document.getElementById('join_policy').value;
+    var pwGroup = document.getElementById('password-group');
+    var pwInput = document.getElementById('join_password');
+    var clubGroup = document.getElementById('club-group');
+
+    if (pwGroup) {
+        pwGroup.style.display = policy === 'password_protected' ? 'block' : 'none';
+        pwInput.required = policy === 'password_protected';
+    }
+    if (clubGroup) {
+        // Always show club group, but mark required only for club_only
+        var clubSelect = document.getElementById('club_id');
+        clubSelect.required = policy === 'club_only';
+    }
+}
+// Run on load to apply initial state
+updateFormVisibility();
+</script>
+{% endblock %}
