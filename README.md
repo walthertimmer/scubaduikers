@@ -1,6 +1,6 @@
 # scubaduikers
 
-scubaduikers
+scubaduikers - de start van je duik
 
 ## tech setup
 
@@ -25,6 +25,14 @@ Lokaal testen
 uv run fastapi dev main.py
 ```
 
+Prod data lokaal halen om te testen
+
+```bash
+python restore_prod_db.py
+python restore_prod_db.py --confirm
+```
+
 ## docs
 
 uv & fastapi [docs](https://docs.astral.sh/uv/guides/integration/fastapi/)
+litestream [dcos](https://litestream.io/guides/kubernetes/)
