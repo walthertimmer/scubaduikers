@@ -36,6 +36,8 @@ def restore_database(db_path: str = DB_PATH, confirm: bool = False):
             print("This will be OVERWRITTEN. Use --confirm to proceed.")
             sys.exit(1)
         Path(db_path).unlink()
+        Path(f"{db_path}-shm").unlink(missing_ok=True)
+        Path(f"{db_path}-wal").unlink(missing_ok=True)
 
     print(f"→ Restoring s3://{S3_BUCKET}/scubaduikers to {db_path}")
 
