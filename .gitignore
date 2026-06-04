@@ -218,3 +218,6 @@ __marimo__/
 .streamlit/secrets.toml
 
 .DS_Store
+scubaduikers.db
+scubaduikers.db-shm
+scubaduikers.db-wal
