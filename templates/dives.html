@@ -47,9 +47,6 @@
                 🤿 Georganiseerd door
                 {% if entry.organiser_club %}
                     {{ entry.organiser_club.name }}
-                    {% if entry.organiser_user %} ({{ entry.organiser_user.name }}){% endif %}
-                {% elif entry.organiser_user %}
-                    {{ entry.organiser_user.name }}
                 {% else %}
                     onbekend
                 {% endif %}

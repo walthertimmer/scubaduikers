@@ -716,3 +716,131 @@ button[type="submit"]:hover,
     color: #777;
     margin-top: 0.25rem;
 }
+
+/* ── Clubs list view ── */
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid #b0bec5;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: var(--font-base);
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.2);
+}
+
+.list-view {
+    width: 100%;
+}
+
+.list-header,
+.list-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.list-header {
+    font-weight: 600;
+    background: #f8f9fa;
+    color: #444;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.list-row {
+    padding: 0.85rem 1rem;
+}
+
+.list-row:hover {
+    background: #f8fafc;
+}
+
+.list-row.requests-row {
+    grid-column: 1 / -1;
+}
+
+.list-row.requests-row .list-col-name {
+    grid-column: 1 / -1;
+}
+
+.list-col-name a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.list-col-name a:hover {
+    text-decoration: underline;
+}
+
+.list-col-location {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.list-col-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.list-col-actions form {
+    margin: 0;
+}
+
+.list-view details {
+    margin-top: 0.5rem;
+}
+
+.list-view summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: #444;
+    padding: 0.25rem 0;
+}
+
+.list-view summary:hover {
+    color: var(--color-primary);
+}
+
+.request-list {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+}
+
+.request-list .request-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.88rem;
+}
+
+.request-list .request-name {
+    color: var(--color-text);
+}
+
+.request-list .request-email {
+    color: #777;
+}
+
+.request-list .request-actions {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}

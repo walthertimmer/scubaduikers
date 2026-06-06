@@ -30,6 +30,11 @@ def clubs_overview(request: Request, session: Session = Depends(get_session)):
     clubs = session.exec(select(DivingClub)).all()
     user_id = request.session.get("user_id")
 
+    search = request.query_params.get('search', '')
+    if search:
+        search_lower = search.lower()
+        clubs = [c for c in clubs if search_lower in c.name.lower() or search_lower in (c.location or '').lower()]
+
     club_data = []
     for club in clubs:
         entry: dict = {

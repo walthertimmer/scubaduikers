@@ -8,9 +8,9 @@
         <h1>{% if dive.title %}{{ dive.title }}{% else %}Duik op {{ dive.date }}{% endif %}</h1>
         <div style="display:flex; gap: 0.5rem; align-items: center;">
             {% if is_organiser %}
-            <a href="/dives/{{ dive.id }}/edit" class="btn btn-sm">✏️ Bewerken</a>
+            <a href="/dives/{{ dive.id }}/edit" class="btn btn-sm">Bewerken</a>
             {% endif %}
-            <a href="/dives" class="btn">← Terug naar duiken</a>
+            <a href="/dives" class="btn btn-sm">← Terug naar duiken</a>
         </div>
     </div>
 
@@ -30,20 +30,15 @@
                 {% endif %}
             </div>
 
-            <p class="card-meta">📅 {{ dive.date }}</p>
+            <p class="card-meta">Datum: {{ dive.date }}</p>
 
             {% if site %}
-            <p class="card-meta">📍 {{ site.name }}{% if site.location %}, {{ site.location }}{% endif %}</p>
-            {% if site.max_depth %}
-            <p class="card-meta">📏 Max diepte: {{ site.max_depth }} m</p>
-            {% endif %}
-            {% if site.description %}
-            <p class="dive-notes">{{ site.description }}</p>
-            {% endif %}
+            <p class="card-meta">Locatie: {{ site.name }}{% if site.location %}, {{ site.location }}{% endif %}</p>
+
             {% endif %}
 
             <p class="card-meta">
-                🤿 Georganiseerd door
+                Georganiseerd door
                 {% if organiser_club %}
                     {{ organiser_club.name }}
                     {% if organiser_user %} ({{ organiser_user.name }}){% endif %}
@@ -55,7 +50,7 @@
             </p>
 
             {% if dive.description %}
-            <p class="dive-notes">{{ dive.description }}</p>
+            <p class="card-meta">Omschrijving: {{ dive.description }}</p>
             {% endif %}
         </div>
 
@@ -65,7 +60,7 @@
             {% if is_participant %}
                 <span class="badge badge-member">Jij doet mee</span>
                 <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
-                    <button type="submit" class="btn btn-sm btn-danger">Afmelden</button>
+                    <button type="submit" class="btn btn-sm">Afmelden</button>
                 </form>
             {% elif not request.session.get('user_id') %}
                 <a href="/login" class="btn btn-sm">Inloggen om mee te doen</a>
@@ -136,7 +131,7 @@
             <label for="comment-content">Schrijf een reactie</label>
             <textarea id="comment-content" name="content" rows="3" required placeholder="Jouw reactie…" style="width: 100%;"></textarea>
         </div>
-        <button type="submit" class="btn">Versturen</button>
+        <button type="submit" class="btn btn-sm">Versturen</button>
     </form>
     {% else %}
     <p><a href="/login">Log in</a> om een reactie te plaatsen.</p>
