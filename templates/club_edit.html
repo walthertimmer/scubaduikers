@@ -26,6 +26,11 @@
             <input type="url" id="website" name="website" placeholder="https://" value="{{ club.website or '' }}">
         </div>
 
+        <div class="form-group">
+            <label for="description">Beschrijving</label>
+            <textarea id="description" name="description" rows="4">{{ club.description or '' }}</textarea>
+        </div>
+
         <button type="submit">Opslaan</button>
     </form>
 

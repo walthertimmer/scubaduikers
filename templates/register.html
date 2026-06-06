@@ -12,7 +12,7 @@
 
     <form method="post" action="/register">
         <div class="form-group">
-            <label for="name">Naam</label>
+            <label for="name">Gebruikersnaam</label>
             <input type="text" id="name" name="name" required autocomplete="name">
         </div>
 
@@ -24,6 +24,11 @@
         <div class="form-group">
             <label for="password">Wachtwoord</label>
             <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirmation">Herhaal wachtwoord</label>
+            <input type="password" id="password_confirmation" name="password_confirmation" required minlength="8" autocomplete="new-password">
         </div>
 
         <button type="submit">Account aanmaken</button>

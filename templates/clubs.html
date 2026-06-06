@@ -22,12 +22,7 @@
         <div class="card-body">
             <h2 class="card-title"><a href="/clubs/{{ club.id }}">{{ club.name }}</a></h2>
             {% if club.location %}
-            <p class="card-meta">📍 {{ club.location }}</p>
-            {% endif %}
-            {% if club.website %}
-            <p class="card-meta">
-                <a href="{{ club.website }}" target="_blank" rel="noopener noreferrer">{{ club.website }}</a>
-            </p>
+            <p class="card-meta">Locatie: {{ club.location }}</p>
             {% endif %}
         </div>
 

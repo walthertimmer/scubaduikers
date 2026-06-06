@@ -7,6 +7,7 @@
     <h1>{{ profile_user.name }}</h1>
 
     {% if profile_user.description %}
+    <h2>Over {{ profile_user.name }}</h2>
     <p>{{ profile_user.description }}</p>
     {% else %}
     <p class="empty-state">Deze gebruiker heeft nog geen beschrijving toegevoegd.</p>

@@ -22,19 +22,26 @@
         {% endif %}
     </div>
 
+    <div class="card-stack">
+        <div class="card">
+            <div class="card-body">
+                <h2>Details</h2>
+                {% if club.location %}
+                <p>Locatie: {{ club.location }}</p>
+                {% endif %}
+                {% if club.website %}
+                <p>
+                    Website: <a href="{{ club.website }}" target="_blank" rel="noopener noreferrer">{{ club.website }}</a>
+                </p>
+                {% endif %}
+                {% if club.description %}
+                <p>Omschrijving: {{ club.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
     <div class="card">
         <div class="card-body">
-            {% if club.location %}
-            <p class="card-meta">📍 {{ club.location }}</p>
-            {% endif %}
-            {% if club.website %}
-            <p class="card-meta">
-                🌐 <a href="{{ club.website }}" target="_blank" rel="noopener noreferrer">{{ club.website }}</a>
-            </p>
-            {% endif %}
-        </div>
-    </div>
-
     <h2>Leden ({{ members | length }})</h2>
     {% if members %}
     <table class="table">
@@ -62,25 +69,79 @@
     {% else %}
     <p class="empty-state">Deze club heeft nog geen leden.</p>
     {% endif %}
+    </div>
+    </div>
 
-    {% if pending_requests %}
-    <h2>Lidmaatschapsaanvragen ({{ pending_requests | length }})</h2>
-    <ul class="request-list">
-    {% for item in pending_requests %}
-    <li class="request-item">
-        <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
-        <span class="request-actions">
-            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
-                <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
-            </form>
-            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
-                <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
-            </form>
-        </span>
-    </li>
-    {% endfor %}
-    </ul>
-    {% endif %}
+    <div class="card">
+        <div class="card-body">
+        <h2>Lidmaatschapsaanvragen ({{ pending_requests | length }})</h2>
+        {% if pending_requests %}
+        <ul class="request-list">
+        {% for item in pending_requests %}
+        <li class="request-item">
+            <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
+            <span class="request-actions">
+                <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
+                </form>
+                <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
+                </form>
+            </span>
+        </li>
+        {% endfor %}
+        </ul>
+        {% else %}
+        <p class="empty-state">Er zijn geen lidmaatschapsaanvragen.</p>
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+        <h2>Aankomende duiken</h2>
+        {% if dive_data %}
+        <div class="card-grid">
+        {% for entry in dive_data %}
+        {% set dive = entry.dive %}
+        <div class="card">
+            <div class="card-body">
+                <div class="dive-header">
+                    <h3 class="card-title">
+                        <a href="/dives/{{ dive.id }}">{% if dive.title %}{{ dive.title }}{% else %}Duik op {{ dive.date }}{% endif %}</a>
+                    </h3>
+                    {% if dive.join_policy == "club_only" %}
+                        <span class="badge badge-club">Alleen leden</span>
+                    {% elif dive.join_policy == "password_protected" %}
+                        <span class="badge badge-locked">Besloten</span>
+                    {% else %}
+                        <span class="badge badge-open">Open</span>
+                    {% endif %}
+                </div>
+
+                <p class="card-meta">📅 {{ dive.date }}</p>
+
+                {% if entry.site %}
+                <p class="card-meta">📍 {{ entry.site.name }}{% if entry.site.location %}, {{ entry.site.location }}{% endif %}</p>
+                {% endif %}
+
+                {% if entry.organiser_user %}
+                <p class="card-meta">🤿 Georganiseerd door {{ entry.organiser_user.name }}</p>
+                {% endif %}
+
+                {% if dive.description %}
+                <p class="dive-notes">{{ dive.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-state">Deze club heeft nog geen aankomende duiken gepland.</p>
+        <a href="/dives/new">Plan een duik</a>
+        {% endif %}
+        </div>
+    </div>
 
     <p><a href="/clubs">&larr; Terug naar clubs</a></p>
 </section>

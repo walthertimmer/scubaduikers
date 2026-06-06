@@ -55,8 +55,17 @@ async def do_register(
     name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
+    password_confirmation: str = Form(...),
     session: Session = Depends(get_session),
 ):
+    if password != password_confirmation:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "De wachtwoorden komen niet overeen."},
+            status_code=400,
+        )
+
     existing = session.exec(select(User).where(User.email == email)).first()
     if existing:
         return templates.TemplateResponse(

@@ -4,9 +4,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlmodel import Session, select
 
 from database import get_session
+from datetime import date as date_type
+
 from models import (
     ClubJoinRequest,
     ClubRole,
+    Dive,
+    DiveSite,
     DivingClub,
     JoinRequestStatus,
     User,
@@ -135,12 +139,33 @@ def club_detail(club_id: int, request: Request, session: Session = Depends(get_s
                 for r in pending
             ]
 
+    # Fetch upcoming dives organized by this club
+    today = date_type.today()
+    upcoming_dives = session.exec(
+        select(Dive)
+        .where(Dive.organiser_club_id == club_id)
+        .where(Dive.date >= today)
+        .order_by(Dive.date)
+    ).all()
+
+    # Enrich dive data with site information
+    dive_data = []
+    for dive in upcoming_dives:
+        site = session.get(DiveSite, dive.site_id)
+        organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
+        dive_data.append({
+            "dive": dive,
+            "site": site,
+            "organiser_user": organiser_user,
+        })
+
     return templates.TemplateResponse(request, "club_detail.html", {
         "club": club,
         "members": members,
         "user_role": user_role,
         "has_pending_request": has_pending_request,
         "pending_requests": pending_requests,
+        "dive_data": dive_data,
     })
 
 
@@ -150,6 +175,7 @@ def create_club(
     name: str = Form(...),
     location: str = Form(""),
     website: str = Form(""),
+    description: str = Form(""),
     session: Session = Depends(get_session),
 ):
     user_id = request.session.get("user_id")
@@ -160,6 +186,7 @@ def create_club(
         name=name,
         location=location or None,
         website=website or None,
+        description=description or None,
     )
     session.add(club)
     session.flush()  # populate club.id before creating the link
@@ -278,6 +305,7 @@ def edit_club(
     name: str = Form(...),
     location: str = Form(""),
     website: str = Form(""),
+    description: str = Form(""),
     session: Session = Depends(get_session),
 ):
     user_id = request.session.get("user_id")
@@ -291,6 +319,7 @@ def edit_club(
     club.name = name
     club.location = location or None
     club.website = website or None
+    club.description = description or None
     session.add(club)
     session.commit()
     return RedirectResponse(f"/clubs/{club_id}", status_code=303)

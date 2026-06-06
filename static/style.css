@@ -101,9 +101,10 @@ nav ul li {
     nav ul {
         display: none;
         flex-direction: column;
-        width: 100%;
+        /* width: 100%; */
         gap: 0.75rem;
         padding: 0.75rem 0;
+        margin-left: auto; /* Aligns to the right */
     }
 
     nav ul.open {
@@ -118,6 +119,19 @@ main {
     width: 100%;
     margin: 0 auto;
     padding: 2rem;
+}
+
+p {
+    text-decoration: none;
+}
+
+p a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
 }
 
 /* ── Hero ── */
@@ -416,11 +430,19 @@ button[type="submit"]:hover,
     font-size: 1.8rem;
 }
 
-/* ── Card grid ── */
+/* ── Card grid or stack ── */
+/* all cards in a grid layout */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.25rem;
+}
+
+/* all cards below each other */
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .card {
@@ -435,6 +457,16 @@ button[type="submit"]:hover,
 .card-body {
     padding: 1.2rem 1.2rem 0.8rem;
     flex: 1;
+    text-decoration: none;
+}
+
+.card-body a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.card-body a:visited {
+    color: var(--color-primary);
 }
 
 .card-title {

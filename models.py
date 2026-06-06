@@ -37,6 +37,7 @@ class UserDiveLink(SQLModel, table=True):
 
 class DivingClubBase(SQLModel):
     name: str
+    description: Optional[str] = None
     location: Optional[str] = None
     website: Optional[str] = None
 

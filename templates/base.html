@@ -38,9 +38,7 @@
                 {% if not request.session.get('user_name') %}<li><a href="/register">registreren</a></li>{% endif %}                {% if request.session.get('user_name') %}
                 <li class="nav-user">
                     <a href="/profile">{{ request.session.get('user_name') }}</a>
-                    <form method="post" action="/logout" style="display:inline">
-                        <button type="submit" class="nav-logout">(uitloggen)</button>
-                    </form>
+                    <a href="/logout" class="nav-logout">uitloggen</a>
                 </li>
                 {% else %}
                 <li><a href="/login">inloggen</a></li>

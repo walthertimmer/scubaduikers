@@ -24,9 +24,17 @@ async def lifespan(app: FastAPI):
     yield
 
 
+def get_version() -> str:
+    with open("pyproject.toml") as f:
+        for line in f:
+            if line.startswith("version"):
+                return line.split("=")[1].strip().strip('"\'')
+    return "unknown"
+
+
 app = FastAPI(
     lifespan=lifespan,
-    version="1")
+    version=get_version())
 
 app.add_middleware(
     SessionMiddleware,
