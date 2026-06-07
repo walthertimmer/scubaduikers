@@ -39,6 +39,13 @@ Testdata invoeren
 python ./tests/seed_test_data.py
 ```
 
+Superadmin instellen
+
+```bash
+sqlite3 /data/scubaduikers.db \
+  "UPDATE user SET is_superadmin = 1 WHERE email = 'your-email@example.com';"
+```
+
 ## docs
 
 uv & fastapi [docs](https://docs.astral.sh/uv/guides/integration/fastapi/)

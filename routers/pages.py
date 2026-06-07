@@ -375,3 +375,18 @@ async def do_reset_password(
     session.commit()
     return templates.TemplateResponse(request, "reset_password.html", {"token": token, "error": None, "done": True})
 
+# ---------------------------------------------------------------------------
+# Admin
+# ---------------------------------------------------------------------------
+
+@router.get("/superadmin", response_class=HTMLResponse)
+async def admin_page(request: Request, session: Session = Depends(get_session)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    
+    user = session.get(User, user_id)
+    if not user or not user.is_superadmin:
+        return RedirectResponse("/", status_code=403)
+    
+    return templates.TemplateResponse(request, "superadmin.html")

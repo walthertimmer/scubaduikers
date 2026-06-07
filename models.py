@@ -71,6 +71,7 @@ class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     password_hash: Optional[str] = Field(default=None)
     is_verified: bool = Field(default=False)
+    is_superadmin: bool = Field(default=False)
     verification_token: Optional[str] = Field(default=None)
     verification_sent_at: Optional[datetime] = Field(default=None)
     reset_token: Optional[str] = Field(default=None)
