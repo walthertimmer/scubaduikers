@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Aankomende duiken – Scubaduikers{% endblock %}
+{% block title %}Aankomende duiken - Scubaduikers{% endblock %}
 
 {% block content %}
 <section>
@@ -15,19 +15,22 @@
     <p class="form-error">{{ flash_error }}</p>
     {% endif %}
 
-    {% if not dive_data %}
+    {% if not dive_data.items %}
     <p class="empty-state">Er zijn nog geen aankomende duiken gepland.</p>
-    {% endif %}
+    {% else %}
+    <div class="list-view">
+        <div class="list-header">
+            <div>Duik</div>
+            <div>Locatie & Datum</div>
+            <div>Organisator</div>
+            <div>Acties</div>
+        </div>
 
-    <div class="card-grid">
-    {% for entry in dive_data %}
-    {% set dive = entry.dive %}
-    <div class="card">
-        <div class="card-body">
-            <div class="dive-header">
-                <h2 class="card-title">
-                    <a href="/dives/{{ dive.id }}">{% if dive.title %}{{ dive.title }}{% else %}Duik op {{ dive.date }}{% endif %}</a>
-                </h2>
+        {% for entry in dive_data['items'] %}
+        {% set dive = entry.dive %}
+        <div class="list-row">
+            <div>
+                <a href="/dives/{{ dive.id }}">{{ dive.title or "Duik op " ~ dive.date }}</a>
                 {% if dive.join_policy == "club_only" %}
                     <span class="badge badge-club">Alleen leden</span>
                 {% elif dive.join_policy == "password_protected" %}
@@ -36,64 +39,51 @@
                     <span class="badge badge-open">Open</span>
                 {% endif %}
             </div>
-
-            <p class="card-meta">📅 {{ dive.date }}</p>
-
-            {% if entry.site %}
-            <p class="card-meta">📍 {{ entry.site.name }}{% if entry.site.location %}, {{ entry.site.location }}{% endif %}</p>
-            {% endif %}
-
-            <p class="card-meta">
-                🤿 Georganiseerd door
-                {% if entry.organiser_club %}
-                    {{ entry.organiser_club.name }}
-                {% else %}
-                    onbekend
+            <div>
+                {% if entry.site %}{{ entry.site.name }}{% if entry.site.location %}, {{ entry.site.location }}{% endif %}{% endif %}
+                <br><span class="card-meta">📅 {{ dive.date }}</span>
+            </div>
+            <div>
+                {% if entry.organiser_club %}{{ entry.organiser_club.name }}{% else %}onbekend{% endif %}
+            </div>
+            <div class="list-col-actions">
+                {% if entry.is_participant %}
+                    <span class="badge badge-member">Jij doet mee</span>
+                    <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger">Afmelden</button>
+                    </form>
+                {% elif not request.session.get('user_id') %}
+                    <a href="/login" class="btn btn-sm">Inloggen</a>
+                {% elif entry.can_join %}
+                    {% if entry.needs_password %}
+                    <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
+                        <input type="password" name="password" placeholder="Wachtwoord" required class="join-password-input">
+                        <button type="submit" class="btn btn-sm">Aanmelden</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="/dives/{{ dive.id }}/join" style="display:inline">
+                        <button type="submit" class="btn btn-sm">Aanmelden</button>
+                    </form>
+                    {% endif %}
+                {% elif dive.join_policy == "club_only" %}
+                    <span class="badge badge-pending">Niet lid</span>
                 {% endif %}
-            </p>
-
-            {% if dive.join_policy == "club_only" and entry.organiser_club %}
-            <p class="card-meta dive-club-note">Voor leden van {{ entry.organiser_club.name }}</p>
-            {% endif %}
-
-            {% if dive.description %}
-            <p class="dive-notes">{{ dive.description }}</p>
-            {% endif %}
+            </div>
         </div>
-
-        <div class="card-footer">
-            <span class="participant-count">👥 {{ entry.participant_count }} deelnemer{{ 's' if entry.participant_count != 1 else '' }}</span>
-
-            {% if entry.is_participant %}
-                <span class="badge badge-member">Jij doet mee</span>
-                <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
-                    <button type="submit" class="btn btn-sm btn-danger">Afmelden</button>
-                </form>
-            {% elif not request.session.get('user_id') %}
-                <a href="/login" class="btn btn-sm">Inloggen om mee te doen</a>
-            {% elif entry.can_join %}
-                {% if entry.needs_password %}
-                <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Wachtwoord"
-                        required
-                        class="join-password-input"
-                    >
-                    <button type="submit" class="btn btn-sm">Aanmelden</button>
-                </form>
-                {% else %}
-                <form method="post" action="/dives/{{ dive.id }}/join" style="display:inline">
-                    <button type="submit" class="btn btn-sm">Aanmelden</button>
-                </form>
-                {% endif %}
-            {% elif dive.join_policy == "club_only" %}
-                <span class="badge badge-pending">Niet lid van club</span>
-            {% endif %}
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+
+    {% if dive_data.has_prev or dive_data.has_next %}
+    <div class="pagination">
+        {% if dive_data['has_prev'] %}
+        <a href="?page={{ dive_data['prev_num'] }}" class="btn">← Vorige</a>
+        {% endif %}
+        <span>Pagina {{ dive_data.page }} van {{ dive_data.pages }}</span>
+        {% if dive_data['has_next'] %}
+        <a href="?page={{ dive_data['next_num'] }}" class="btn">Volgende →</a>
+        {% endif %}
     </div>
+    {% endif %}
+    {% endif %}
 </section>
 {% endblock %}

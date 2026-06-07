@@ -1,9 +1,9 @@
 from datetime import date as date_type
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, Request, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func, col
 
 from database import get_session
 from models import (
@@ -19,6 +19,7 @@ from models import (
 from security import hash_password, verify_password
 from templating import templates
 
+
 router = APIRouter()
 
 
@@ -27,12 +28,29 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.get("/dives", response_class=HTMLResponse)
-def dives_overview(request: Request, session: Session = Depends(get_session)):
+def dives_overview(
+    request: Request, 
+    session: Session = Depends(get_session),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(10, ge=1, le=50)
+):
     today = date_type.today()
     user_id = request.session.get("user_id")
 
+    # Count total upcoming dives
+    total = len(session.exec(select(Dive).where(Dive.date >= today)).all())
+
+    # Calculate pagination
+    offset = (page - 1) * per_page
+    total_pages = max(1, (total + per_page - 1) // per_page)
+
+    # Get dives for current page
     upcoming = session.exec(
-        select(Dive).where(Dive.date >= today).order_by(Dive.date)
+        select(Dive)
+        .where(Dive.date >= today)
+        .order_by(Dive.date)
+        .offset(offset)
+        .limit(per_page)
     ).all()
 
     # Pre-fetch user's club memberships and dive participations
@@ -52,7 +70,7 @@ def dives_overview(request: Request, session: Session = Depends(get_session)):
             ).all()
         }
 
-    dive_data = []
+    entries = []
     for dive in upcoming:
         site = session.get(DiveSite, dive.site_id)
         organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
@@ -71,11 +89,7 @@ def dives_overview(request: Request, session: Session = Depends(get_session)):
                 can_join = True
                 needs_password = True
 
-        participant_count = session.exec(
-            select(UserDiveLink).where(UserDiveLink.dive_id == dive.id)
-        ).all().__len__()
-
-        dive_data.append({
+        entries.append({
             "dive": dive,
             "site": site,
             "organiser_user": organiser_user,
@@ -83,15 +97,28 @@ def dives_overview(request: Request, session: Session = Depends(get_session)):
             "is_participant": is_participant,
             "can_join": can_join,
             "needs_password": needs_password,
-            "participant_count": participant_count,
         })
 
     flash_error = request.session.get("flash_error")
     if flash_error:
         del request.session["flash_error"]
 
+    dive_data = {
+        "items": entries,
+        "page": page,
+        "pages": total_pages,
+        "has_prev": page > 1,
+        "has_next": page < total_pages,
+        "prev_num": page - 1,
+        "next_num": page + 1,
+    }
+
     return templates.TemplateResponse(
-        request, "dives.html", {"dive_data": dive_data, "flash_error": flash_error}
+        request,
+        "dives.html", {
+            "dive_data": dive_data, 
+            "flash_error": flash_error
+        }
     )
 
 

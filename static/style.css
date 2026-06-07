@@ -844,3 +844,26 @@ button[type="submit"]:hover,
     gap: 0.4rem;
     flex-shrink: 0;
 }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.list-view .list-header,
+.list-view .list-row {
+    grid-template-columns: 2fr 1.5fr 1fr 0.8fr auto;
+}
+
+.list-view .list-col-actions {
+    justify-content: flex-end;
+}
+
+.join-form {
+    display: flex;
+    gap: 0.4rem;
+}

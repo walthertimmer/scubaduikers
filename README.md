@@ -1,6 +1,6 @@
 # scubaduikers
 
-scubaduikers - de start van je duik
+[scubaduikers](https://scubaduikers.nl) - de start van je duik
 
 ## tech setup
 
@@ -31,6 +31,12 @@ Prod data lokaal halen om te testen
 ```bash
 python restore_prod_db.py
 python restore_prod_db.py --confirm
+```
+
+Testdata invoeren
+
+```bash
+python ./tests/seed_test_data.py
 ```
 
 ## docs

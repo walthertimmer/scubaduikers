@@ -7,6 +7,7 @@
 .venv/
 __pycache__/
 *.py[cod]
+.vscode/
 
 # Database files (runtime data, not source)
 *.db
@@ -19,3 +20,6 @@ __pycache__/
 
 # CI/CD (not needed at runtime)
 .github/
+
+# tests
+tests/
