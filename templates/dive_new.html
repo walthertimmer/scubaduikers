@@ -13,7 +13,7 @@
     <form method="post" action="/dives" id="dive-form">
 
         <div class="form-group">
-            <label for="title">Titel <span class="field-optional">(optioneel)</span></label>
+            <label for="title">Titel</label>
             <input type="text" id="title" name="title" placeholder="bijv. Wrakduik Zeeland">
         </div>
 
@@ -23,17 +23,10 @@
         </div>
         
 
-        <fieldset class="form-fieldset">
-            <legend>Duiklocatie</legend>
-            <div class="form-group">
-                <label for="site_name">Naam van de locatie</label>
-                <input type="text" id="site_name" name="site_name" required placeholder="bijv. Grevelingenmeer">
-            </div>
-            <div class="form-group">
-                <label for="site_location">Plaatsnaam / regio</label>
-                <input type="text" id="site_location" name="site_location" required placeholder="bijv. Zeeland">
-            </div>
-        </fieldset>
+        <div class="form-group">
+            <label for="location">Locatie</label>
+            <input type="text" id="location" name="location" required placeholder="bijv. duikstek 4, Grevelingenmeer, Zeeland">
+        </div>
 
         <div class="form-group">
             <label for="description">Beschrijving <span class="field-optional">(optioneel)</span></label>

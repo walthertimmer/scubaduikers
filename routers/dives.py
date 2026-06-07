@@ -9,7 +9,6 @@ from database import get_session
 from models import (
     Dive,
     DiveComment,
-    DiveSite,
     DivingClub,
     JoinPolicy,
     User,
@@ -72,7 +71,6 @@ def dives_overview(
 
     entries = []
     for dive in upcoming:
-        site = session.get(DiveSite, dive.site_id)
         organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
         organiser_club = session.get(DivingClub, dive.organiser_club_id) if dive.organiser_club_id else None
 
@@ -91,7 +89,6 @@ def dives_overview(
 
         entries.append({
             "dive": dive,
-            "site": site,
             "organiser_user": organiser_user,
             "organiser_club": organiser_club,
             "is_participant": is_participant,
@@ -148,8 +145,7 @@ def create_dive(
     request: Request,
     title: str = Form(""),
     dive_date: str = Form(...),
-    site_name: str = Form(...),
-    site_location: str = Form(...),
+    location: str = Form(...),
     description: str = Form(""),
     club_id: str = Form(""),
     join_policy: str = Form("open"),
@@ -186,21 +182,10 @@ def create_dive(
             )
         password_hash = hash_password(join_password)
 
-    # Find or create dive site
-    site = session.exec(
-        select(DiveSite)
-        .where(DiveSite.name == site_name)
-        .where(DiveSite.location == site_location)
-    ).first()
-    if not site:
-        site = DiveSite(name=site_name, location=site_location)
-        session.add(site)
-        session.flush()
-
     dive = Dive(
         title=title or None,
         date=parsed_date,
-        site_id=site.id,
+        location=location,
         description=description or None,
         organiser_user_id=user_id,
         organiser_club_id=parsed_club_id,
@@ -289,7 +274,6 @@ def dive_detail(dive_id: int, request: Request, session: Session = Depends(get_s
 
     user_id = request.session.get("user_id")
 
-    site = session.get(DiveSite, dive.site_id)
     organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
     organiser_club = session.get(DivingClub, dive.organiser_club_id) if dive.organiser_club_id else None
 
@@ -331,7 +315,6 @@ def dive_detail(dive_id: int, request: Request, session: Session = Depends(get_s
         "dive_detail.html",
         {
             "dive": dive,
-            "site": site,
             "organiser_user": organiser_user,
             "organiser_club": organiser_club,
             "participants": participants,
@@ -409,7 +392,6 @@ def edit_dive_page(dive_id: int, request: Request, session: Session = Depends(ge
     if not dive or dive.organiser_user_id != user_id:
         return RedirectResponse(f"/dives/{dive_id}", status_code=303)
 
-    site = session.get(DiveSite, dive.site_id)
     links = session.exec(
         select(UserDivingClubLink).where(UserDivingClubLink.user_id == user_id)
     ).all()
@@ -417,7 +399,7 @@ def edit_dive_page(dive_id: int, request: Request, session: Session = Depends(ge
 
     return templates.TemplateResponse(
         request, "dive_edit.html",
-        {"dive": dive, "site": site, "clubs": clubs, "error": None},
+        {"dive": dive, "clubs": clubs, "error": None},
     )
 
 
@@ -427,8 +409,7 @@ def edit_dive(
     request: Request,
     title: str = Form(""),
     dive_date: str = Form(...),
-    site_name: str = Form(...),
-    site_location: str = Form(...),
+    location: str = Form(...),
     description: str = Form(""),
     club_id: str = Form(""),
     join_policy: str = Form("open"),
@@ -459,19 +440,9 @@ def edit_dive(
     elif parsed_policy != JoinPolicy.password_protected:
         dive.join_password_hash = None
 
-    site = session.exec(
-        select(DiveSite)
-        .where(DiveSite.name == site_name)
-        .where(DiveSite.location == site_location)
-    ).first()
-    if not site:
-        site = DiveSite(name=site_name, location=site_location)
-        session.add(site)
-        session.flush()
-
     dive.title = title or None
     dive.date = parsed_date
-    dive.site_id = site.id
+    dive.location = location
     dive.description = description or None
     dive.organiser_club_id = parsed_club_id
     dive.join_policy = parsed_policy
@@ -482,13 +453,12 @@ def edit_dive(
 
 
 def _render_edit_form(request, session, dive, user_id: int, error: str):
-    site = session.get(DiveSite, dive.site_id)
     links = session.exec(
         select(UserDivingClubLink).where(UserDivingClubLink.user_id == user_id)
     ).all()
     clubs = [session.get(DivingClub, lnk.club_id) for lnk in links]
     return templates.TemplateResponse(
         request, "dive_edit.html",
-        {"dive": dive, "site": site, "clubs": clubs, "error": error},
+        {"dive": dive, "clubs": clubs, "error": error},
         status_code=400,
     )

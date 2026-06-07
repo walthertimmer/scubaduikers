@@ -32,10 +32,7 @@
 
             <p class="card-meta">Datum: {{ dive.date }}</p>
 
-            {% if site %}
-            <p class="card-meta">Locatie: {{ site.name }}{% if site.location %}, {{ site.location }}{% endif %}</p>
-
-            {% endif %}
+            <p class="card-meta">Locatie: {{ dive.location }}</p>
 
             <p class="card-meta">
                 Georganiseerd door

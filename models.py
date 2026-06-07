@@ -90,31 +90,6 @@ class UserRead(UserBase):
 
 
 # ---------------------------------------------------------------------------
-# DiveSite
-# ---------------------------------------------------------------------------
-
-class DiveSiteBase(SQLModel):
-    name: str
-    location: str
-    max_depth: Optional[float] = None   # metres
-    description: Optional[str] = None
-
-
-class DiveSite(DiveSiteBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-    dives: list["Dive"] = Relationship(back_populates="site")
-
-
-class DiveSiteCreate(DiveSiteBase):
-    pass
-
-
-class DiveSiteRead(DiveSiteBase):
-    id: int
-
-
-# ---------------------------------------------------------------------------
 # Dive
 # organize group dive with multiple divers 
 # ---------------------------------------------------------------------------
@@ -128,8 +103,8 @@ class JoinPolicy(str, Enum):
 class DiveBase(SQLModel):
     date: date
     title: Optional[str] = None
+    location: str
     description: Optional[str] = None
-    site_id: int = Field(foreign_key="divesite.id")
     organiser_club_id: Optional[int] = Field(default=None, foreign_key="divingclub.id")
     organiser_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     join_policy: JoinPolicy = Field(default=JoinPolicy.open)
@@ -140,7 +115,6 @@ class Dive(DiveBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     divers: list[User] = Relationship(back_populates="dives", link_model=UserDiveLink)
-    site: DiveSite = Relationship(back_populates="dives")
     organiser_club: Optional[DivingClub] = Relationship(back_populates="organised_dives")
     organiser_user: Optional[User] = Relationship(back_populates="organised_dives")
 

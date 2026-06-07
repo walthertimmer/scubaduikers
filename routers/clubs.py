@@ -10,7 +10,6 @@ from models import (
     ClubJoinRequest,
     ClubRole,
     Dive,
-    DiveSite,
     DivingClub,
     JoinRequestStatus,
     User,
@@ -153,14 +152,12 @@ def club_detail(club_id: int, request: Request, session: Session = Depends(get_s
         .order_by(Dive.date)
     ).all()
 
-    # Enrich dive data with site information
+    # Enrich dive data with organiser information
     dive_data = []
     for dive in upcoming_dives:
-        site = session.get(DiveSite, dive.site_id)
         organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
         dive_data.append({
             "dive": dive,
-            "site": site,
             "organiser_user": organiser_user,
         })
 
