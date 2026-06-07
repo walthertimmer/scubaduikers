@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
+import re
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -56,8 +57,33 @@ async def do_register(
     email: str = Form(...),
     password: str = Form(...),
     password_confirmation: str = Form(...),
+    phone: str = Form(...),
     session: Session = Depends(get_session),
 ):
+    if phone:  # stop bots
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": None},
+            status_code=400,
+        )
+    
+    if not re.match(r"^[^@]+@[^@]+\.[^@]+$", email):
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Ongeldig e-mailadres."}, 
+            status_code=400
+        )
+    
+    if len(password) < 8:
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Wachtwoord moet minstens 8 tekens lang zijn."}, 
+            status_code=400
+        )
+    
     if password != password_confirmation:
         return templates.TemplateResponse(
             request,
@@ -65,9 +91,35 @@ async def do_register(
             {"error": "De wachtwoorden komen niet overeen."},
             status_code=400,
         )
+    
+    if len(name) > 20:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "Naam max 20 karakters."},
+            status_code=400,
+        )
+    
+    name = name.strip()[:20]
+    if not name:
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Naam is vereist."}, 
+            status_code=400
+        )
 
-    existing = session.exec(select(User).where(User.email == email)).first()
-    if existing:
+    existing_name = session.exec(select(User).where(User.name == name)).first()
+    if existing_name:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "Deze naam is al in gebruik."},
+            status_code=400,
+        )
+
+    existing_email = session.exec(select(User).where(User.email == email)).first()
+    if existing_email:
         return templates.TemplateResponse(
             request,
             "register.html",
