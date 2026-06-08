@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
+import re
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -55,10 +56,70 @@ async def do_register(
     name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
+    password_confirmation: str = Form(...),
+    phone: str = Form(...),
     session: Session = Depends(get_session),
 ):
-    existing = session.exec(select(User).where(User.email == email)).first()
-    if existing:
+    if phone:  # stop bots
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": None},
+            status_code=400,
+        )
+    
+    if not re.match(r"^[^@]+@[^@]+\.[^@]+$", email):
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Ongeldig e-mailadres."}, 
+            status_code=400
+        )
+    
+    if len(password) < 8:
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Wachtwoord moet minstens 8 tekens lang zijn."}, 
+            status_code=400
+        )
+    
+    if password != password_confirmation:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "De wachtwoorden komen niet overeen."},
+            status_code=400,
+        )
+    
+    if len(name) > 20:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "Naam max 20 karakters."},
+            status_code=400,
+        )
+    
+    name = name.strip()[:20]
+    if not name:
+        return templates.TemplateResponse(
+            request, 
+            "register.html", 
+            {"error": "Naam is vereist."}, 
+            status_code=400
+        )
+
+    existing_name = session.exec(select(User).where(User.name == name)).first()
+    if existing_name:
+        return templates.TemplateResponse(
+            request,
+            "register.html",
+            {"error": "Deze naam is al in gebruik."},
+            status_code=400,
+        )
+
+    existing_email = session.exec(select(User).where(User.email == email)).first()
+    if existing_email:
         return templates.TemplateResponse(
             request,
             "register.html",
@@ -314,3 +375,18 @@ async def do_reset_password(
     session.commit()
     return templates.TemplateResponse(request, "reset_password.html", {"token": token, "error": None, "done": True})
 
+# ---------------------------------------------------------------------------
+# Admin
+# ---------------------------------------------------------------------------
+
+@router.get("/superadmin", response_class=HTMLResponse)
+async def admin_page(request: Request, session: Session = Depends(get_session)):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+    
+    user = session.get(User, user_id)
+    if not user or not user.is_superadmin:
+        return RedirectResponse("/", status_code=403)
+    
+    return templates.TemplateResponse(request, "superadmin.html")

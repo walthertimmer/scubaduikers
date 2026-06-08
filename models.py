@@ -29,6 +29,24 @@ class UserDivingClubLink(SQLModel, table=True):
 class UserDiveLink(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, foreign_key="user.id", primary_key=True)
     dive_id: Optional[int] = Field(default=None, foreign_key="dive.id", primary_key=True)
+    participation_mode: Optional[str] = Field(default=None)
+
+
+# ---------------------------------------------------------------------------
+# Club dive join options
+# ---------------------------------------------------------------------------
+
+class ClubDiveOption(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    club_id: int = Field(foreign_key="divingclub.id")
+    label: str = Field(default="Hoe neem jij deel?")
+    options: str = Field(default='[' \
+        '"Ik ga direct naar de duiklocatie", ' \
+        '"Ik ga eerst naar het verzamelpunt en moet vullen", ' \
+        '"Ik ga eerst naar het verzamelpunt maar hoef niet te vullen"' \
+        '"Ik kom maar ga niet duiken"' \
+    ']')
+    is_active: bool = Field(default=True)
 
 
 # ---------------------------------------------------------------------------
@@ -37,6 +55,7 @@ class UserDiveLink(SQLModel, table=True):
 
 class DivingClubBase(SQLModel):
     name: str
+    description: Optional[str] = None
     location: Optional[str] = None
     website: Optional[str] = None
 
@@ -70,6 +89,7 @@ class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     password_hash: Optional[str] = Field(default=None)
     is_verified: bool = Field(default=False)
+    is_superadmin: bool = Field(default=False)
     verification_token: Optional[str] = Field(default=None)
     verification_sent_at: Optional[datetime] = Field(default=None)
     reset_token: Optional[str] = Field(default=None)
@@ -89,31 +109,6 @@ class UserRead(UserBase):
 
 
 # ---------------------------------------------------------------------------
-# DiveSite
-# ---------------------------------------------------------------------------
-
-class DiveSiteBase(SQLModel):
-    name: str
-    location: str
-    max_depth: Optional[float] = None   # metres
-    description: Optional[str] = None
-
-
-class DiveSite(DiveSiteBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-    dives: list["Dive"] = Relationship(back_populates="site")
-
-
-class DiveSiteCreate(DiveSiteBase):
-    pass
-
-
-class DiveSiteRead(DiveSiteBase):
-    id: int
-
-
-# ---------------------------------------------------------------------------
 # Dive
 # organize group dive with multiple divers 
 # ---------------------------------------------------------------------------
@@ -127,10 +122,11 @@ class JoinPolicy(str, Enum):
 class DiveBase(SQLModel):
     date: date
     title: Optional[str] = None
+    location: str
     description: Optional[str] = None
-    site_id: int = Field(foreign_key="divesite.id")
     organiser_club_id: Optional[int] = Field(default=None, foreign_key="divingclub.id")
     organiser_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    surface_coordinator: Optional[str] = None
     join_policy: JoinPolicy = Field(default=JoinPolicy.open)
     join_password_hash: Optional[str] = Field(default=None)
 
@@ -139,7 +135,6 @@ class Dive(DiveBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     divers: list[User] = Relationship(back_populates="dives", link_model=UserDiveLink)
-    site: DiveSite = Relationship(back_populates="dives")
     organiser_club: Optional[DivingClub] = Relationship(back_populates="organised_dives")
     organiser_user: Optional[User] = Relationship(back_populates="organised_dives")
 

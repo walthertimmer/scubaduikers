@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}scubaduikers.nl{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
-    <link rel="icon" type="image/avif" href="/static/scubaduikers.avif">
+    <link rel="icon" type="image/avif" href="/static/scubaduikers.ico">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var btn = document.querySelector('.nav-hamburger');
@@ -30,16 +30,21 @@
 <body>
     <header>
         <nav>
-            <a href="/" class="logo"><img src="/static/scubaduikers.avif" alt=""><span>scubaduikers.nl</span></a>
+            <a href="/" class="logo"><img src="/static/scubaduikers.ico" alt="scubaduikers"><span>scubaduikers.nl</span></a>
             <button class="nav-hamburger" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">&#9776;</button>
             <ul id="nav-menu">
                 <li><a href="/clubs">duikclubs</a></li>
                 <li><a href="/dives">duiken</a></li>
-                {% if not request.session.get('user_name') %}<li><a href="/register">registreren</a></li>{% endif %}                {% if request.session.get('user_name') %}
+                {% if not request.session.get('user_name') %}
+                    <li><a href="/register">registreren</a></li>
+                {% endif %}                
+                {% if request.session.get('user_name') %}
                 <li class="nav-user">
                     <a href="/profile">{{ request.session.get('user_name') }}</a>
-                    <form method="post" action="/logout" style="display:inline">
-                        <button type="submit" class="nav-logout">(uitloggen)</button>
+                </li>
+                <li class="nav-user">
+                    <form method="post" action="/logout">
+                        <button style="background:none;border:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:none;" type="submit">uitloggen</button>
                     </form>
                 </li>
                 {% else %}
