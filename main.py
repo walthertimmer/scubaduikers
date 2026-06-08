@@ -9,10 +9,10 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import SQLModel
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import logging
 from logging.handlers import RotatingFileHandler
+
 
 import migrate
 import models  # noqa: F401  # registers tables in SQLModel.metadata
@@ -88,7 +88,6 @@ else:
         allow_methods=["GET", "POST", "PUT", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
     )
-    app.add_middleware(HTTPSRedirectMiddleware)
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=["scubaduikers.nl", "www.scubaduikers.nl"],
