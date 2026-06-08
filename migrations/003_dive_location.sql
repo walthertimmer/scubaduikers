@@ -1,13 +1,11 @@
 -- Migration: Simplify dive model - single location field, remove DiveSite
 -- For SQLite: must recreate table to remove column with FK constraint
 
-BEGIN TRANSACTION;
-
 -- Step 1: Add location column to dive table
 ALTER TABLE dive ADD COLUMN location TEXT NOT NULL DEFAULT '';
 
 -- Step 2: Create temporary table without site_id column
-CREATE TABLE dive_new (
+CREATE TABLE IF NOT EXISTS dive_new (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     title TEXT,
@@ -39,5 +37,3 @@ CREATE INDEX IF NOT EXISTS idx_dive_join_policy ON dive(join_policy);
 
 -- Step 7: Drop the divesite table
 DROP TABLE divesite;
-
-COMMIT;
