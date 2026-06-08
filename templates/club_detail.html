@@ -103,7 +103,7 @@
             {% if dive_data %}
             {% for entry in dive_data %}
             {% set dive = entry.dive %}
-            <div>
+            <div style="margin-top: 0.5rem;">
                 {{ dive.date }} - <a href="/dives/{{ dive.id }}">{{ dive.title if dive.title else "Duik" }}</a>
             </div>
             {% endfor %}

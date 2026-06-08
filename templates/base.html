@@ -35,9 +35,14 @@
             <ul id="nav-menu">
                 <li><a href="/clubs">duikclubs</a></li>
                 <li><a href="/dives">duiken</a></li>
-                {% if not request.session.get('user_name') %}<li><a href="/register">registreren</a></li>{% endif %}                {% if request.session.get('user_name') %}
+                {% if not request.session.get('user_name') %}
+                    <li><a href="/register">registreren</a></li>
+                {% endif %}                
+                {% if request.session.get('user_name') %}
                 <li class="nav-user">
                     <a href="/profile">{{ request.session.get('user_name') }}</a>
+                </li>
+                <li class="nav-user">
                     <form method="post" action="/logout">
                         <button style="background:none;border:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-decoration:none;" type="submit">uitloggen</button>
                     </form>

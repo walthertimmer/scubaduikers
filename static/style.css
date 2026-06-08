@@ -96,15 +96,23 @@ nav ul li {
 
     .nav-hamburger {
         display: block;
+        border-radius: 50%;
     }
 
     nav ul {
         display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
         flex-direction: column;
-        /* width: 100%; */
         gap: 0.75rem;
         padding: 0.75rem 0;
-        margin-left: auto; /* Aligns to the right */
+        background: #fff;
+        min-width: 100px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        align-items: center;
+        text-align: center;
     }
 
     nav ul.open {
