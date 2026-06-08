@@ -48,6 +48,6 @@ sqlite3 /data/scubaduikers.db \
 
 ## docs
 
-uv & fastapi [docs](https://docs.astral.sh/uv/guides/integration/fastapi/)
-litestream [dcos](https://litestream.io/guides/kubernetes/)
-fastapi [reference](https://fastapi.tiangolo.com/reference/)
+uv & fastapi [docs](https://docs.astral.sh/uv/guides/integration/fastapi/)  
+litestream [dcos](https://litestream.io/guides/kubernetes/)  
+fastapi [reference](https://fastapi.tiangolo.com/reference/)  
