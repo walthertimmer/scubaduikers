@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ dive.title if dive.title else 'Duik op ' ~ dive.date }} – Scubaduikers{% endblock %}
+{% block title %}{{ dive.title if dive.title else 'Duik op ' ~ dive.date }} - Scubaduikers{% endblock %}
 
 {% block content %}
 <section>
@@ -49,10 +49,13 @@
             {% if dive.description %}
             <p class="card-meta">Omschrijving: {{ dive.description }}</p>
             {% endif %}
+            {% if dive.surface_coordinator %}
+            <p class="card-meta">Oppervlakte coördinator: {{ dive.surface_coordinator }}</p>
+            {% endif %}
         </div>
 
         <div class="card-footer">
-            <span class="participant-count">👥 {{ participants | length }} deelnemer{{ 's' if participants | length != 1 else '' }}</span>
+            <span class="participant-count">{{ participants | length }} Deelnemer{{ 's' if participants | length != 1 else '' }}</span>
 
             {% if is_participant %}
                 <span class="badge badge-member">Jij doet mee</span>
@@ -64,6 +67,13 @@
             {% elif can_join %}
                 {% if needs_password %}
                 <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
+                    {% if options_list %}
+                    <select name="participation_mode" required class="join-select">
+                        {% for option in options_list %}
+                        <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
                     <input
                         type="password"
                         name="password"
@@ -74,7 +84,14 @@
                     <button type="submit" class="btn btn-sm">Aanmelden</button>
                 </form>
                 {% else %}
-                <form method="post" action="/dives/{{ dive.id }}/join" style="display:inline">
+                <form method="post" action="/dives/{{ dive.id }}/join" class="join-form" style="display:inline">
+                    {% if options_list %}
+                    <select name="participation_mode" required class="join-select">
+                        {% for option in options_list %}
+                        <option class="option" value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
                     <button type="submit" class="btn btn-sm">Aanmelden</button>
                 </form>
                 {% endif %}
@@ -90,7 +107,10 @@
         {% for person in participants %}
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title"><a href="/users/{{ person.id }}">{{ person.name }}</a></h3>
+                <h3 class="card-title"><a href="/users/{{ person.user.id }}">{{ person.user.name }}</a></h3>
+                {% if person.participation_mode %}
+                <p class="card-meta">{{ person.participation_mode }}</p>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

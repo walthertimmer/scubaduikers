@@ -29,6 +29,24 @@ class UserDivingClubLink(SQLModel, table=True):
 class UserDiveLink(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, foreign_key="user.id", primary_key=True)
     dive_id: Optional[int] = Field(default=None, foreign_key="dive.id", primary_key=True)
+    participation_mode: Optional[str] = Field(default=None)
+
+
+# ---------------------------------------------------------------------------
+# Club dive join options
+# ---------------------------------------------------------------------------
+
+class ClubDiveOption(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    club_id: int = Field(foreign_key="divingclub.id")
+    label: str = Field(default="Hoe neem jij deel?")
+    options: str = Field(default='[' \
+        '"Ik ga direct naar de duiklocatie", ' \
+        '"Ik ga eerst naar het verzamelpunt en moet vullen", ' \
+        '"Ik ga eerst naar het verzamelpunt maar hoef niet te vullen"' \
+        '"Ik kom maar ga niet duiken"' \
+    ']')
+    is_active: bool = Field(default=True)
 
 
 # ---------------------------------------------------------------------------
@@ -108,6 +126,7 @@ class DiveBase(SQLModel):
     description: Optional[str] = None
     organiser_club_id: Optional[int] = Field(default=None, foreign_key="divingclub.id")
     organiser_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    surface_coordinator: Optional[str] = None
     join_policy: JoinPolicy = Field(default=JoinPolicy.open)
     join_password_hash: Optional[str] = Field(default=None)
 

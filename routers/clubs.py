@@ -1,12 +1,14 @@
+import json
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-
 from sqlmodel import Session, select
+import logging
 
 from database import get_session
 from datetime import date as date_type
 
 from models import (
+    ClubDiveOption,
     ClubJoinRequest,
     ClubRole,
     Dive,
@@ -19,6 +21,8 @@ from templating import templates
 
 router = APIRouter()
 
+logger = logging.getLogger(__name__)
+
 
 # ---------------------------------------------------------------------------
 # Overview
@@ -29,7 +33,7 @@ def clubs_overview(request: Request, session: Session = Depends(get_session)):
     clubs = session.exec(select(DivingClub)).all()
     user_id = request.session.get("user_id")
 
-    search = request.query_params.get('search', '')
+    search = request.query_params.get('search', '').strip()
     if search:
         search_lower = search.lower()
         clubs = [c for c in clubs if search_lower in c.name.lower() or search_lower in (c.location or '').lower()]
@@ -297,7 +301,16 @@ def edit_club_page(club_id: int, request: Request, session: Session = Depends(ge
     if not club:
         return RedirectResponse("/clubs", status_code=303)
 
-    return templates.TemplateResponse(request, "club_edit.html", {"club": club, "error": None})
+    # Get club's dive options
+    dive_options = session.exec(
+        select(ClubDiveOption)
+        .where(ClubDiveOption.club_id == club_id)
+    ).first()
+
+    return templates.TemplateResponse(
+        request, "club_edit.html",
+        {"club": club, "error": None, "dive_options": dive_options}
+    )
 
 
 @router.post("/clubs/{club_id}/edit", response_class=HTMLResponse)
@@ -308,6 +321,8 @@ def edit_club(
     location: str = Form(""),
     website: str = Form(""),
     description: str = Form(""),
+    dive_options_label: str = Form(""),
+    dive_options_json: str = Form(""),
     session: Session = Depends(get_session),
 ):
     user_id = request.session.get("user_id")
@@ -324,4 +339,76 @@ def edit_club(
     club.description = description or None
     session.add(club)
     session.commit()
+
+    # Handle dive options
+    if dive_options_json:
+        try:
+            # Validate JSON
+            json.loads(dive_options_json)
+            dive_options = session.exec(
+                select(ClubDiveOption)
+                .where(ClubDiveOption.club_id == club_id)
+            ).first()
+
+            if dive_options:
+                dive_options.label = dive_options_label or "Hoe neem jij deel?"
+                dive_options.options = dive_options_json
+                dive_options.is_active = True
+                session.add(dive_options)
+            else:
+                session.add(ClubDiveOption(
+                    club_id=club_id,
+                    label=dive_options_label or "Hoe neem jij deel?",
+                    options=dive_options_json,
+                    is_active=True
+                ))
+            session.commit()
+        except json.JSONDecodeError:
+            logger.error("clubs: edit_club: JSON decoding error")
+            pass  # Invalid JSON, ignore
+
+    return RedirectResponse(f"/clubs/{club_id}", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# Club dive options management (admin only)
+# ---------------------------------------------------------------------------
+
+@router.post("/clubs/{club_id}/dive-options")
+def update_dive_options(
+    club_id: int,
+    request: Request,
+    label: str = Form("How will you participate?"),
+    options: str = Form('[]'),
+    is_active: str = Form("true"),
+    session: Session = Depends(get_session),
+):
+    user_id = request.session.get("user_id")
+    if not user_id or not _get_admin_link(club_id, user_id, session):
+        return RedirectResponse(f"/clubs/{club_id}", status_code=303)
+
+    try:
+        # Validate JSON
+        json.loads(options)
+        dive_options = session.exec(
+            select(ClubDiveOption)
+            .where(ClubDiveOption.club_id == club_id)
+        ).first()
+
+        if dive_options:
+            dive_options.label = label
+            dive_options.options = options
+            dive_options.is_active = is_active.lower() == "true"
+            session.add(dive_options)
+        else:
+            session.add(ClubDiveOption(
+                club_id=club_id,
+                label=label,
+                options=options,
+                is_active=is_active.lower() == "true"
+            ))
+        session.commit()
+    except json.JSONDecodeError:
+        pass
+
     return RedirectResponse(f"/clubs/{club_id}", status_code=303)

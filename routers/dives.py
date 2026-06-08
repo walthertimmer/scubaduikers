@@ -1,3 +1,4 @@
+import json
 from datetime import date as date_type
 
 from fastapi import APIRouter, Depends, Form, Request, Query
@@ -7,6 +8,7 @@ from sqlmodel import Session, select, func, col
 
 from database import get_session
 from models import (
+    ClubDiveOption,
     Dive,
     DiveComment,
     DivingClub,
@@ -148,6 +150,7 @@ def create_dive(
     location: str = Form(...),
     description: str = Form(""),
     club_id: str = Form(""),
+    surface_coordinator: str = Form(""),
     join_policy: str = Form("open"),
     join_password: str = Form(""),
     session: Session = Depends(get_session),
@@ -189,6 +192,7 @@ def create_dive(
         description=description or None,
         organiser_user_id=user_id,
         organiser_club_id=parsed_club_id,
+        surface_coordinator=surface_coordinator or None,
         join_policy=parsed_policy,
         join_password_hash=password_hash,
     )
@@ -222,6 +226,7 @@ def join_dive(
     dive_id: int,
     request: Request,
     password: str = Form(""),
+    participation_mode: str = Form(""),
     session: Session = Depends(get_session),
 ):
     user_id = request.session.get("user_id")
@@ -257,7 +262,11 @@ def join_dive(
             request.session["flash_error"] = "Ongeldig wachtwoord."
             return RedirectResponse(f"/dives/{dive_id}", status_code=303)
 
-    session.add(UserDiveLink(user_id=user_id, dive_id=dive_id))
+    session.add(UserDiveLink(
+        user_id=user_id,
+        dive_id=dive_id,
+        participation_mode=participation_mode if participation_mode else None
+    ))
     session.commit()
     return RedirectResponse(f"/dives/{dive_id}", status_code=303)
 
@@ -277,13 +286,30 @@ def dive_detail(dive_id: int, request: Request, session: Session = Depends(get_s
     organiser_user = session.get(User, dive.organiser_user_id) if dive.organiser_user_id else None
     organiser_club = session.get(DivingClub, dive.organiser_club_id) if dive.organiser_club_id else None
 
-    participants = session.exec(
-        select(User)
-        .join(UserDiveLink, UserDiveLink.user_id == User.id)
+    # Get club's dive options
+    club_options = None
+    if organiser_club:
+        club_options = session.exec(
+            select(ClubDiveOption)
+            .where(ClubDiveOption.club_id == organiser_club.id)
+            .where(ClubDiveOption.is_active == True)
+        ).first()
+
+    # Get participants with their participation modes
+    user_dive_links = session.exec(
+        select(UserDiveLink)
         .where(UserDiveLink.dive_id == dive_id)
     ).all()
+    participants = []
+    for link in user_dive_links:
+        user = session.get(User, link.user_id)
+        if user:
+            participants.append({
+                "user": user,
+                "participation_mode": link.participation_mode
+            })
 
-    is_participant = any(p.id == user_id for p in participants)
+    is_participant = any(p["user"].id == user_id for p in participants)
     can_join = False
     needs_password = False
 
@@ -310,6 +336,14 @@ def dive_detail(dive_id: int, request: Request, session: Session = Depends(get_s
 
     is_organiser = user_id is not None and dive.organiser_user_id == user_id
 
+    # Parse club options if present
+    options_list = []
+    if club_options:
+        try:
+            options_list = json.loads(club_options.options)
+        except (json.JSONDecodeError, TypeError):
+            options_list = []
+
     return templates.TemplateResponse(
         request,
         "dive_detail.html",
@@ -325,6 +359,8 @@ def dive_detail(dive_id: int, request: Request, session: Session = Depends(get_s
             "comments": comments,
             "comment_users": comment_users,
             "is_organiser": is_organiser,
+            "club_options": club_options,
+            "options_list": options_list,
         },
     )
 
@@ -412,6 +448,7 @@ def edit_dive(
     location: str = Form(...),
     description: str = Form(""),
     club_id: str = Form(""),
+    surface_coordinator: str = Form(""),
     join_policy: str = Form("open"),
     join_password: str = Form(""),
     session: Session = Depends(get_session),
@@ -445,6 +482,7 @@ def edit_dive(
     dive.location = location
     dive.description = description or None
     dive.organiser_club_id = parsed_club_id
+    dive.surface_coordinator = surface_coordinator or None
     dive.join_policy = parsed_policy
     session.add(dive)
     session.commit()

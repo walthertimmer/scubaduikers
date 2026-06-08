@@ -23,7 +23,6 @@
             <div>Duik</div>
             <div>Locatie & Datum</div>
             <div>Organisator</div>
-            <div>Acties</div>
         </div>
 
         {% for entry in dive_data['items'] %}
@@ -42,32 +41,12 @@
             <div>
                 {{ dive.location }}
                 <br><span class="card-meta">{{ dive.date }}</span>
+                {% if dive.surface_coordinator %}
+                <br><span class="card-meta">Oppervlakte: {{ dive.surface_coordinator }}</span>
+                {% endif %}
             </div>
             <div>
                 {% if entry.organiser_club %}{{ entry.organiser_club.name }}{% else %}onbekend{% endif %}
-            </div>
-            <div class="list-col-actions">
-                {% if entry.is_participant %}
-                    <span class="badge badge-member">Jij doet mee</span>
-                    <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
-                        <button type="submit" class="btn btn-sm btn-danger">Afmelden</button>
-                    </form>
-                {% elif not request.session.get('user_id') %}
-                    <a href="/login" class="btn btn-sm">Inloggen</a>
-                {% elif entry.can_join %}
-                    {% if entry.needs_password %}
-                    <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
-                        <input type="password" name="password" placeholder="Wachtwoord" required class="join-password-input">
-                        <button type="submit" class="btn btn-sm">Aanmelden</button>
-                    </form>
-                    {% else %}
-                    <form method="post" action="/dives/{{ dive.id }}/join" style="display:inline">
-                        <button type="submit" class="btn btn-sm">Aanmelden</button>
-                    </form>
-                    {% endif %}
-                {% elif dive.join_policy == "club_only" %}
-                    <span class="badge badge-pending">Niet lid</span>
-                {% endif %}
             </div>
         </div>
         {% endfor %}

@@ -867,3 +867,7 @@ button[type="submit"]:hover,
     display: flex;
     gap: 0.4rem;
 }
+
+.option {
+    display: flex;
+}

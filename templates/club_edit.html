@@ -31,6 +31,28 @@
             <textarea id="description" name="description" rows="4">{{ club.description or '' }}</textarea>
         </div>
 
+        <hr style="margin: 2rem 0;">
+
+        <h2 style="margin-top: 2rem;">Duik deelname opties</h2>
+        <p class="card-meta">
+            Configureer de opties die leden kunnen selecteren wanneer ze zich aanmelden voor een duik.
+            Let op: waardes die al zijn gebruikt voor deelname aan een duik worden niet aangepast door wijzigingen in onderstaande.
+        </p>
+
+        <div class="form-group">
+            <label for="dive_options_label">Label (vraag)</label>
+            <input type="text" id="dive_options_label" name="dive_options_label" 
+                   value="{{ dive_options.label if dive_options else 'Hoe neem jij deel?' }}" 
+                   placeholder="Hoe zal je deelnemen?">
+        </div>
+
+        <div class="form-group">
+            <label for="dive_options_json">Opties (JSON array)</label>
+            <textarea id="dive_options_json" name="dive_options_json" rows="3" 
+                      placeholder='["Ga direct naar duiklocatie", "Ga eerst naar het verzamelpunt", "Ga mee maar duik niet"]'>{{ dive_options.options if dive_options else '' }}</textarea>
+            <p class="card-meta" style="margin-top: 0.25rem;">Voer een JSON array in, bv: ["Optie 1", "Optie 2", "Optie 3"]</p>
+        </div>
+
         <button type="submit">Opslaan</button>
     </form>
 

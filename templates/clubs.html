@@ -23,7 +23,6 @@
         <div class="list-header">
             <div class="list-col-name">Clubnaam</div>
             <div class="list-col-location">Locatie</div>
-            <div class="list-col-actions">Acties</div>
         </div>
         {% for entry in club_data %}
         {% set club = entry.club %}
@@ -34,46 +33,7 @@
             <div class="list-col-location">
                 {{ club.location if club.location else '-' }}
             </div>
-            <div class="list-col-actions">
-                {% if entry.user_role == "admin" %}
-                    <span class="badge badge-admin">Admin</span>
-                {% elif entry.user_role == "member" %}
-                    <span class="badge badge-member">Lid</span>
-                {% elif entry.has_pending_request %}
-                    <span class="badge badge-pending">Aanvraag in behandeling</span>
-                {% elif request.session.get('user_id') %}
-                    <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
-                        <button type="submit" class="btn btn-sm">Lid worden</button>
-                    </form>
-                {% else %}
-                    <a href="/login" class="btn btn-sm">Inloggen</a>
-                {% endif %}
-            </div>
         </div>
-        {% if entry.pending_requests %}
-        <div class="list-row requests-row">
-            <div class="list-col-name" colspan="3">
-                <details>
-                    <summary>Lidmaatschapsaanvragen ({{ entry.pending_requests | length }})</summary>
-                    <ul class="request-list">
-                    {% for item in entry.pending_requests %}
-                    <li class="request-item">
-                        <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
-                        <span class="request-actions">
-                            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
-                                <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
-                            </form>
-                            <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
-                                <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
-                            </form>
-                        </span>
-                    </li>
-                    {% endfor %}
-                    </ul>
-                </details>
-            </div>
-        </div>
-        {% endif %}
         {% endfor %}
     </div>
     {% endif %}
