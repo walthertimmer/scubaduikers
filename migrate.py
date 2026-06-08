@@ -13,6 +13,7 @@ import logging
 from pathlib import Path
 
 from sqlalchemy import Connection, text
+from sqlalchemy.exc import OperationalError
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
