@@ -51,7 +51,13 @@ def run(engine) -> None:
 
             # Execute each statement separately (SQLite doesn't support multi-statement exec)
             for statement in _split(sql):
-                conn.execute(text(statement))
+                try:
+                    conn.execute(text(statement))
+                except OperationalError as e:
+                    if "duplicate column" in str(e).lower():
+                        log.debug("skipping: %s", statement[:50])
+                        continue
+                    raise
 
             conn.execute(
                 text("INSERT INTO schema_migration (name) VALUES (:name)"),
