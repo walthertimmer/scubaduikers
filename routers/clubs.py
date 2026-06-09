@@ -96,6 +96,43 @@ def new_club_page(request: Request):
 # Club detail
 # ---------------------------------------------------------------------------
 
+@router.get("/clubs/{club_id}/membership", response_class=HTMLResponse)
+def club_membership(club_id: int, request: Request, session: Session = Depends(get_session)):
+    user_id = request.session.get("user_id")
+    if not user_id or not _get_admin_link(club_id, user_id, session):
+        return RedirectResponse("/clubs", status_code=303)
+
+    club = session.get(DivingClub, club_id)
+    if not club:
+        return RedirectResponse("/clubs", status_code=303)
+
+    # Members with their roles
+    links = session.exec(
+        select(UserDivingClubLink).where(UserDivingClubLink.club_id == club_id)
+    ).all()
+    members = [
+        {"user": session.get(User, lnk.user_id), "role": lnk.role}
+        for lnk in links
+    ]
+
+    # Get pending requests
+    pending = session.exec(
+        select(ClubJoinRequest)
+        .where(ClubJoinRequest.club_id == club_id)
+        .where(ClubJoinRequest.status == JoinRequestStatus.pending)
+    ).all()
+    pending_requests = [
+        {"request": r, "user": session.get(User, r.user_id)}
+        for r in pending
+    ]
+
+    return templates.TemplateResponse(request, "club_membership.html", {
+        "club": club,
+        "members": members,
+        "pending_requests": pending_requests,
+    })
+
+
 @router.get("/clubs/{club_id}", response_class=HTMLResponse)
 def club_detail(club_id: int, request: Request, session: Session = Depends(get_session)):
     club = session.get(DivingClub, club_id)

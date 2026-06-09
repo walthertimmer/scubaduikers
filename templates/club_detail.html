@@ -17,8 +17,9 @@
             <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
                 <button type="submit" class="btn btn-primary">Lid worden</button>
             </form>
-        {% else %}
-            <a href="/login" class="btn btn-primary">Inloggen om lid te worden</a>
+        {% endif %}
+        {% if user_role == "admin" %}
+            <a href="/clubs/{{ club.id }}/membership" class="btn btn-secondary">Lidmaatschap beheer</a>
         {% endif %}
     </div>
 
@@ -68,31 +69,6 @@
             </table>
             {% else %}
             <p class="empty-state">Deze club heeft nog geen leden.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-body">
-            <h2>Lidmaatschapsaanvragen ({{ pending_requests | length }})</h2>
-            {% if pending_requests %}
-            <ul class="request-list">
-            {% for item in pending_requests %}
-            <li class="request-item">
-                <span class="request-name">{{ item.user.name }} <span class="request-email">({{ item.user.email }})</span></span>
-                <span class="request-actions">
-                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
-                        <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
-                    </form>
-                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
-                        <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
-                    </form>
-                </span>
-            </li>
-            {% endfor %}
-            </ul>
-            {% else %}
-            <p class="empty-state">Er zijn geen lidmaatschapsaanvragen.</p>
             {% endif %}
         </div>
     </div>
