@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Lidmaatschap beheer - {{ club.name }} – Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="page-header">
+        <h1>Lidmaatschap beheer: {{ club.name }}</h1>
+        <a href="/clubs/{{ club.id }}" class="btn btn-secondary">&larr; Terug naar club</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>Leden ({{ members | length }})</h2>
+            {% if members %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Naam</th>
+                        <th>Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for entry in members %}
+                <tr>
+                    <td><a href="/users/{{ entry.user.id }}">{{ entry.user.name }}</a></td>
+                    <td>
+                        {% if entry.role == "admin" %}
+                            <span class="badge badge-admin">Admin</span>
+                        {% else %}
+                            <span class="badge badge-member">Lid</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-state">Deze club heeft nog geen leden.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2>Lidmaatschapsaanvragen ({{ pending_requests | length }})</h2>
+            {% if pending_requests %}
+            <ul class="request-list">
+            {% for item in pending_requests %}
+            <li class="request-item">
+                <div class="request-info">
+                    <span class="request-name">{{ item.user.name }}</span>
+                    {% if item.request.message %}
+                    <div class="request-message">"{{ item.request.message }}"</div>
+                    {% endif %}
+                </div>
+                <span class="request-actions">
+                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>
+                    </form>
+                    <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/reject" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger">Afwijzen</button>
+                    </form>
+                </span>
+            </li>
+            {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty-state">Er zijn geen lidmaatschapsaanvragen.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

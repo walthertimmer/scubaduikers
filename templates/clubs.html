@@ -37,5 +37,8 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% if not request.session.get('user_id') %}
+    <p class="login-prompt">Meld je <a href="/login">aan</a> om een club aan te maken.</p>
+    {% endif %}
 </section>
 {% endblock %}

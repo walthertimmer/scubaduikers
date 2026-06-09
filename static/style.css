@@ -460,6 +460,7 @@ button[type="submit"]:hover,
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-top: 0.5rem;
 }
 
 .card-body {
