@@ -15,7 +15,7 @@
     <p class="form-error">{{ flash_error }}</p>
     {% endif %}
 
-    {% if not dive_data.items %}
+    {% if not dive_data['items'] %}
     <p class="empty-state">Er zijn nog geen aankomende duiken gepland.</p>
     {% else %}
     <div class="list-view">
@@ -63,6 +63,10 @@
         {% endif %}
     </div>
     {% endif %}
+    {% endif %}
+
+    {% if not request.session.get('user_id') %}
+    <p style="margin-top:0.5rem;">Wil je zelf een duik plannen? <a href="/login">Log in</a>.</p>
     {% endif %}
 </section>
 {% endblock %}
