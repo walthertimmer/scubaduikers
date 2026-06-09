@@ -48,7 +48,12 @@
             <ul class="request-list">
             {% for item in pending_requests %}
             <li class="request-item">
-                <span class="request-name">{{ item.user.name }}</span>
+                <div class="request-info">
+                    <span class="request-name">{{ item.user.name }}</span>
+                    {% if item.request.message %}
+                    <div class="request-message">"{{ item.request.message }}"</div>
+                    {% endif %}
+                </div>
                 <span class="request-actions">
                     <form method="post" action="/clubs/{{ club.id }}/requests/{{ item.request.id }}/approve" style="display:inline">
                         <button type="submit" class="btn btn-sm btn-success">Goedkeuren</button>

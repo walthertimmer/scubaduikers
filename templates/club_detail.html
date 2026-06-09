@@ -15,6 +15,7 @@
             <span class="badge badge-pending">Aanvraag in behandeling</span>
         {% elif request.session.get('user_id') %}
             <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
+                <textarea name="message" placeholder="Bericht bij aanmelding (optioneel)" rows="2" style="vertical-align: middle; margin-right: 0.5rem;"></textarea>
                 <button type="submit" class="btn btn-primary">Lid worden</button>
             </form>
         {% endif %}

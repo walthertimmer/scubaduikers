@@ -248,6 +248,7 @@ def create_club(
 def request_join(
     club_id: int,
     request: Request,
+    message: str = Form(""),
     session: Session = Depends(get_session),
 ):
     user_id = request.session.get("user_id")
@@ -268,7 +269,11 @@ def request_join(
             .where(ClubJoinRequest.status == JoinRequestStatus.pending)
         ).first()
         if not existing_req:
-            session.add(ClubJoinRequest(user_id=user_id, club_id=club_id))
+            session.add(ClubJoinRequest(
+                user_id=user_id,
+                club_id=club_id,
+                message=message if message.strip() else None
+            ))
             session.commit()
 
     return RedirectResponse(f"/clubs/{club_id}", status_code=303)

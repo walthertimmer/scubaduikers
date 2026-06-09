@@ -176,3 +176,4 @@ class ClubJoinRequest(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id")
     club_id: int = Field(foreign_key="divingclub.id")
     status:  JoinRequestStatus = Field(default=JoinRequestStatus.pending)
+    message: Optional[str] = Field(default=None)
