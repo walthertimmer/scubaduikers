@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Clubhuis - {{ club.name }} - Scubaduikers{% endblock %}
+
+{% block content %}
+<section>
+    <div class="page-header">
+        <h1>Clubhuis: {{ club.name }}</h1>
+        <a href="/clubs/{{ club.id }}" class="btn">&larr; Terug naar club</a>
+    </div>
+
+    <div class="card-stack">
+        <div class="card">
+            <div class="card-body">
+                <h2>Berichten</h2>
+                
+                {% if not messages %}
+                <p class="empty-state">Er zijn nog geen berichten in het clubhuis.</p>
+                {% else %}
+                <div class="message-list">
+                    {% for entry in messages %}
+                    {% set message = entry.message %}
+                    {% set user = entry.user %}
+                    <div class="message-item">
+                        <div class="message-header">
+                            <strong><a href="/users/{{ user.id }}">{{ user.name }}</a></strong>
+                            <span class="message-time">{{ message.created_at.strftime('%d-%m-%Y %H:%M') }}</span>
+                        </div>
+                        <div class="message-content">{{ message.content }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if page > 1 or total_pages > 1 %}
+        <div class="card">
+            <div class="card-body">
+                <nav class="pagination" aria-label="Paginering">
+                    {% if page > 1 %}
+                    <a href="/clubs/{{ club.id }}/clubhouse?page={{ page - 1 }}" class="btn" aria-label="Vorige pagina" style="color:white">&laquo; Vorige</a>
+                    {% else %}
+                    <span class="btn" aria-disabled="true" style="color:white">&laquo; Vorige</span>
+                    {% endif %}
+
+                    <span class="pagination-info">
+                        Pagina {{ page }} van {{ total_pages }} ({{ total_count }} berichten)
+                    </span>
+
+                    {% if page < total_pages %}
+                    <a href="/clubs/{{ club.id }}/clubhouse?page={{ page + 1 }}" class="btn" aria-label="Volgende pagina" style="color:white">Volgende &raquo;</a>
+                    {% else %}
+                    <span class="btn" aria-disabled="true" style="color:white">Volgende &raquo;</span>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-body">
+                <h2>Nieuw bericht</h2>
+                <form method="post" action="/clubs/{{ club.id }}/clubhouse" class="message-form">
+                    <div class="form-group">
+                        <textarea name="content" placeholder="Typ je bericht hier..." rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Bericht plaatsen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <p style="margin-top: 1rem;"><a href="/clubs">&larr; Terug naar alle clubs</a></p>
+</section>
+
+<style>
+    .message-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .message-item {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid var(--color-primary);
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .message-header strong {
+        color: var(--color-primary);
+    }
+
+    .message-header strong a {
+        color: var(--color-primary);
+        text-decoration: none;
+    }
+
+    .message-header strong a:hover {
+        text-decoration: underline;
+    }
+
+    .message-time {
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .message-content {
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .message-form {
+        margin-top: 0.5rem;
+    }
+
+    .message-form textarea {
+        padding: 0.75rem;
+        border: 1px solid #b0bec5;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        width: 100%;
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .message-form textarea:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.2);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .pagination a {
+        text-decoration: none;
+    }
+
+    .pagination a:hover {
+        background-color: var(--color-accent);
+    }
+</style>
+{% endblock %}

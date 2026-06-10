@@ -8,19 +8,21 @@
         <h1>{{ club.name }}</h1>
         {% if user_role == "admin" %}
             <span class="badge badge-admin">Admin</span>
-            <a href="/clubs/{{ club.id }}/edit" class="btn btn-secondary">Bewerken</a>
+            <a href="/clubs/{{ club.id }}/edit" class="btn">Bewerken</a>
+            <a href="/clubs/{{ club.id }}/clubhouse" class="btn">Clubhuis</a>
         {% elif user_role == "member" %}
             <span class="badge badge-member">Lid</span>
+            <a href="/clubs/{{ club.id }}/clubhouse" class="btn">Clubhuis</a>
         {% elif has_pending_request %}
             <span class="badge badge-pending">Aanvraag in behandeling</span>
         {% elif request.session.get('user_id') %}
             <form method="post" action="/clubs/{{ club.id }}/join" style="display:inline">
                 <textarea name="message" placeholder="Bericht bij aanmelding (optioneel)" rows="2" style="vertical-align: middle; margin-right: 0.5rem;"></textarea>
-                <button type="submit" class="btn btn-primary">Lid worden</button>
+                <button type="submit" class="btn">Lid worden</button>
             </form>
         {% endif %}
         {% if user_role == "admin" %}
-            <a href="/clubs/{{ club.id }}/membership" class="btn btn-secondary">Lidmaatschap beheer</a>
+            <a href="/clubs/{{ club.id }}/membership" class="btn">Lidmaatschap beheer</a>
         {% endif %}
     </div>
 

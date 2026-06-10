@@ -7,13 +7,13 @@
     <div class="page-header">
         <h1>Duikclubs</h1>
         {% if request.session.get('user_id') %}
-        <a href="/clubs/new" class="btn btn-primary">Nieuwe club aanmaken</a>
+        <a href="/clubs/new" class="btn">Nieuwe club aanmaken</a>
         {% endif %}
     </div>
 
     <form method="get" action="/clubs" class="search-form">
         <input type="text" name="search" placeholder="Zoek op clubnaam of locatie..." value="{{ request.query_params.get('search', '') }}">
-        <button type="submit" class="btn btn-secondary">Zoeken</button>
+        <button type="submit" class="btn">Zoeken</button>
     </form>
 
     {% if not club_data %}

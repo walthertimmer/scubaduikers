@@ -378,8 +378,9 @@ footer {
 }
 
 /* ── Buttons ── */
-button[type="submit"],
-.btn {
+button,
+.btn,
+.btn:visited {
     display: inline-block;
     padding: 0.55rem 1.2rem;
     background-color: var(--color-primary);
@@ -391,15 +392,6 @@ button[type="submit"],
     cursor: pointer;
     text-decoration: none;
     transition: background-color 0.2s;
-}
-
-button[type="submit"]:hover,
-.btn:hover {
-    background-color: var(--color-accent);
-}
-
-.btn-primary {
-    background-color: var(--color-primary);
 }
 
 .btn-sm {
@@ -785,6 +777,11 @@ button[type="submit"]:hover,
 
 .list-row.requests-row .list-col-name {
     grid-column: 1 / -1;
+}
+
+.list-row a, a:visited {
+    color: var(--color-primary);
+    text-decoration: none;
 }
 
 .list-col-name a {

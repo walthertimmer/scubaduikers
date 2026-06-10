@@ -7,7 +7,7 @@
     <div class="page-header">
         <h1>Aankomende duiken</h1>
         {% if request.session.get('user_id') %}
-        <a href="/dives/new" class="btn btn-primary">Duik plannen</a>
+        <a href="/dives/new" class="btn">Duik plannen</a>
         {% endif %}
     </div>
 
@@ -46,7 +46,11 @@
                 {% endif %}
             </div>
             <div>
-                {% if entry.organiser_club %}{{ entry.organiser_club.name }}{% else %}onbekend{% endif %}
+                {% if entry.organiser_club %}
+                {{ entry.organiser_club.name }}
+                {% else %}
+                {{ entry.organiser_user.name }}
+                {% endif %}
             </div>
         </div>
         {% endfor %}

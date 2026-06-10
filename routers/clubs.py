@@ -10,6 +10,7 @@ from datetime import date as date_type
 from models import (
     ClubDiveOption,
     ClubJoinRequest,
+    ClubMessage,
     ClubRole,
     Dive,
     DivingClub,
@@ -277,6 +278,114 @@ def request_join(
             session.commit()
 
     return RedirectResponse(f"/clubs/{club_id}", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# Clubhouse (member-only messaging)
+# ---------------------------------------------------------------------------
+
+@router.get("/clubs/{club_id}/clubhouse", response_class=HTMLResponse)
+def clubhouse(
+    club_id: int,
+    request: Request,
+    session: Session = Depends(get_session),
+    page: int = 1,
+    per_page: int = 10,
+):
+    """View clubhouse messages with pagination. Members only."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+
+    # Check if user is a member of this club
+    is_member = session.exec(
+        select(UserDivingClubLink)
+        .where(UserDivingClubLink.club_id == club_id)
+        .where(UserDivingClubLink.user_id == user_id)
+    ).first()
+
+    if not is_member:
+        return RedirectResponse("/clubs", status_code=303)
+
+    club = session.get(DivingClub, club_id)
+    if not club:
+        return RedirectResponse("/clubs", status_code=303)
+
+    # Get messages with pagination
+    offset = (page - 1) * per_page
+    messages = session.exec(
+        select(ClubMessage)
+        .where(ClubMessage.club_id == club_id)
+        .order_by(ClubMessage.created_at.desc())
+        .offset(offset)
+        .limit(per_page)
+    ).all()
+
+    # Get total count for pagination
+    total_messages = session.exec(
+        select(ClubMessage)
+        .where(ClubMessage.club_id == club_id)
+    ).all()
+    total_count = len(total_messages)
+    total_pages = (total_count + per_page - 1) // per_page
+
+    # Get user info for each message
+    message_data = []
+    for msg in messages:
+        user = session.get(User, msg.user_id)
+        message_data.append({
+            "message": msg,
+            "user": user,
+        })
+
+    return templates.TemplateResponse(request, "clubhouse.html", {
+        "club": club,
+        "messages": message_data,
+        "user_id": user_id,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+        "total_count": total_count,
+    })
+
+
+@router.post("/clubs/{club_id}/clubhouse", response_class=HTMLResponse)
+def post_message(
+    club_id: int,
+    request: Request,
+    content: str = Form(...),
+    session: Session = Depends(get_session),
+):
+    """Post a new message to the clubhouse. Members only."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+
+    # Check if user is a member of this club
+    is_member = session.exec(
+        select(UserDivingClubLink)
+        .where(UserDivingClubLink.club_id == club_id)
+        .where(UserDivingClubLink.user_id == user_id)
+    ).first()
+
+    if not is_member:
+        return RedirectResponse("/clubs", status_code=303)
+
+    club = session.get(DivingClub, club_id)
+    if not club:
+        return RedirectResponse("/clubs", status_code=303)
+
+    # Create the message
+    if content and content.strip():
+        message = ClubMessage(
+            club_id=club_id,
+            user_id=user_id,
+            content=content.strip(),
+        )
+        session.add(message)
+        session.commit()
+
+    return RedirectResponse(f"/clubs/{club_id}/clubhouse", status_code=303)
 # ---------------------------------------------------------------------------
 
 def _get_admin_link(club_id: int, user_id: int, session: Session):
@@ -454,3 +563,111 @@ def update_dive_options(
         pass
 
     return RedirectResponse(f"/clubs/{club_id}", status_code=303)
+
+
+# ---------------------------------------------------------------------------
+# Clubhouse (member-only messaging)
+# ---------------------------------------------------------------------------
+
+@router.get("/clubs/{club_id}/clubhouse", response_class=HTMLResponse)
+def clubhouse(
+    club_id: int,
+    request: Request,
+    session: Session = Depends(get_session),
+    page: int = 1,
+    per_page: int = 10,
+):
+    """View clubhouse messages with pagination. Members only."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+
+    # Check if user is a member of this club
+    is_member = session.exec(
+        select(UserDivingClubLink)
+        .where(UserDivingClubLink.club_id == club_id)
+        .where(UserDivingClubLink.user_id == user_id)
+    ).first()
+
+    if not is_member:
+        return RedirectResponse("/clubs", status_code=303)
+
+    club = session.get(DivingClub, club_id)
+    if not club:
+        return RedirectResponse("/clubs", status_code=303)
+
+    # Get messages with pagination
+    offset = (page - 1) * per_page
+    messages = session.exec(
+        select(ClubMessage)
+        .where(ClubMessage.club_id == club_id)
+        .order_by(ClubMessage.created_at.desc())
+        .offset(offset)
+        .limit(per_page)
+    ).all()
+
+    # Get total count for pagination
+    total_messages = session.exec(
+        select(ClubMessage)
+        .where(ClubMessage.club_id == club_id)
+    ).all()
+    total_count = len(total_messages)
+    total_pages = (total_count + per_page - 1) // per_page
+
+    # Get user info for each message
+    message_data = []
+    for msg in messages:
+        user = session.get(User, msg.user_id)
+        message_data.append({
+            "message": msg,
+            "user": user,
+        })
+
+    return templates.TemplateResponse(request, "clubhouse.html", {
+        "club": club,
+        "messages": message_data,
+        "user_id": user_id,
+        "page": page,
+        "per_page": per_page,
+        "total_pages": total_pages,
+        "total_count": total_count,
+    })
+
+
+@router.post("/clubs/{club_id}/clubhouse", response_class=HTMLResponse)
+def post_message(
+    club_id: int,
+    request: Request,
+    content: str = Form(...),
+    session: Session = Depends(get_session),
+):
+    """Post a new message to the clubhouse. Members only."""
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+
+    # Check if user is a member of this club
+    is_member = session.exec(
+        select(UserDivingClubLink)
+        .where(UserDivingClubLink.club_id == club_id)
+        .where(UserDivingClubLink.user_id == user_id)
+    ).first()
+
+    if not is_member:
+        return RedirectResponse("/clubs", status_code=303)
+
+    club = session.get(DivingClub, club_id)
+    if not club:
+        return RedirectResponse("/clubs", status_code=303)
+
+    # Create the message
+    if content and content.strip():
+        message = ClubMessage(
+            club_id=club_id,
+            user_id=user_id,
+            content=content.strip(),
+        )
+        session.add(message)
+        session.commit()
+
+    return RedirectResponse(f"/clubs/{club_id}/clubhouse", status_code=303)
