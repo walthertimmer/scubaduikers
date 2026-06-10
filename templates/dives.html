@@ -46,7 +46,11 @@
                 {% endif %}
             </div>
             <div>
-                {% if entry.organiser_club %}{{ entry.organiser_club.name }}{% else %}onbekend{% endif %}
+                {% if entry.organiser_club %}
+                {{ entry.organiser_club.name }}
+                {% else %}
+                {{ entry.organiser_user.name }}
+                {% endif %}
             </div>
         </div>
         {% endfor %}
