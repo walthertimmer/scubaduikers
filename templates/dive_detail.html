@@ -8,9 +8,9 @@
         <h1>{% if dive.title %}{{ dive.title }}{% else %}Duik op {{ dive.date }}{% endif %}</h1>
         <div style="display:flex; gap: 0.5rem; align-items: center;">
             {% if is_organiser %}
-            <a href="/dives/{{ dive.id }}/edit" class="btn btn-sm">Bewerken</a>
+            <a href="/dives/{{ dive.id }}/edit" class="btn">Bewerken</a>
             {% endif %}
-            <a href="/dives" class="btn btn-sm">← Terug naar duiken</a>
+            <a href="/dives" class="btn">← Terug naar duiken</a>
         </div>
     </div>
 
@@ -60,10 +60,10 @@
             {% if is_participant %}
                 <span class="badge badge-member">Jij doet mee</span>
                 <form method="post" action="/dives/{{ dive.id }}/leave" style="display:inline">
-                    <button type="submit" class="btn btn-sm">Afmelden</button>
+                    <button type="submit" class="btn">Afmelden</button>
                 </form>
             {% elif not request.session.get('user_id') %}
-                <a href="/login" class="btn btn-sm">Inloggen om mee te doen</a>
+                <a href="/login" class="btn">Inloggen om mee te doen</a>
             {% elif can_join %}
                 {% if needs_password %}
                 <form method="post" action="/dives/{{ dive.id }}/join" class="join-form">
@@ -81,7 +81,7 @@
                         required
                         class="join-password-input"
                     >
-                    <button type="submit" class="btn btn-sm">Aanmelden</button>
+                    <button type="submit" class="btn">Aanmelden</button>
                 </form>
                 {% else %}
                 <form method="post" action="/dives/{{ dive.id }}/join" class="join-form" style="display:inline">
@@ -92,7 +92,7 @@
                         {% endfor %}
                     </select>
                     {% endif %}
-                    <button type="submit" class="btn btn-sm">Aanmelden</button>
+                    <button type="submit" class="btn">Aanmelden</button>
                 </form>
                 {% endif %}
             {% elif dive.join_policy == "club_only" %}
@@ -148,7 +148,7 @@
             <label for="comment-content">Schrijf een reactie</label>
             <textarea id="comment-content" name="content" rows="3" required placeholder="Jouw reactie…" style="width: 100%;"></textarea>
         </div>
-        <button type="submit" class="btn btn-sm">Versturen</button>
+        <button type="submit" class="btn">Versturen</button>
     </form>
     {% else %}
     <p><a href="/login">Log in</a> om een reactie te plaatsen.</p>

@@ -177,3 +177,15 @@ class ClubJoinRequest(SQLModel, table=True):
     club_id: int = Field(foreign_key="divingclub.id")
     status:  JoinRequestStatus = Field(default=JoinRequestStatus.pending)
     message: Optional[str] = Field(default=None)
+
+
+# ---------------------------------------------------------------------------
+# Club messages (clubhouse)
+# ---------------------------------------------------------------------------
+
+class ClubMessage(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    club_id: int = Field(foreign_key="divingclub.id")
+    user_id: int = Field(foreign_key="user.id")
+    content: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)

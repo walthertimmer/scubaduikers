@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS clubmessage (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    club_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (club_id) REFERENCES divingclub(id),
+    FOREIGN KEY (user_id) REFERENCES user(id)
+);
