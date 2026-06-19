@@ -1,6 +1,6 @@
 [project]
 name = "scubaduikers"
-version = "3"
+version = "5"
 description = "scubaduikers de start van je duik"
 readme = "README.md"
 requires-python = ">=3.13"
