@@ -11,14 +11,10 @@ COPY . .
 
 # Create a non-root user and a directory for the SQLite database
 RUN mkdir -p /data \
-    && useradd --no-create-home --shell /bin/false appuser \
+    && useradd --uid 1000 --no-create-home --shell /bin/false appuser \
     && chown -R appuser:appuser /app /data
 
 USER appuser
-
-RUN mkdir -p /data \
-    && useradd --uid 1000 --no-create-home --shell /bin/false appuser \
-    && chown -R appuser:appuser /app /data
 
 ENV DATABASE_PATH=/data/scubaduikers.db
 
