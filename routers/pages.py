@@ -1,4 +1,5 @@
 import logging
+import os
 import secrets
 from datetime import datetime, timedelta, timezone
 import re
@@ -389,4 +390,9 @@ async def admin_page(request: Request, session: Session = Depends(get_session)):
     if not user or not user.is_superadmin:
         return RedirectResponse("/", status_code=403)
     
-    return templates.TemplateResponse(request, "superadmin.html")
+    # Calculate database size
+    db_path = os.environ.get("DATABASE_PATH", "scubaduikers.db")
+    db_size = os.path.getsize(db_path) if os.path.exists(db_path) else 0
+    db_size_mb = round(db_size / (1024 * 1024), 2)
+    
+    return templates.TemplateResponse(request, "superadmin.html", {"db_size_mb": db_size_mb})
