@@ -10,7 +10,7 @@ from sqlmodel import Session, select
 
 from database import get_session
 from mail import send_password_reset_email, send_verification_email
-from models import User
+from models import Dive, DivingClub, User
 from security import hash_password, verify_password
 from templating import templates
 
@@ -388,11 +388,25 @@ async def admin_page(request: Request, session: Session = Depends(get_session)):
     
     user = session.get(User, user_id)
     if not user or not user.is_superadmin:
-        return RedirectResponse("/", status_code=403)
+        return RedirectResponse("/", status_code=303)
+    
+    # Count entities
+    user_count = session.exec(select(User)).count()
+    club_count = session.exec(select(DivingClub)).count()
+    dive_count = session.exec(select(Dive)).count()
     
     # Calculate database size
     db_path = os.environ.get("DATABASE_PATH", "scubaduikers.db")
     db_size = os.path.getsize(db_path) if os.path.exists(db_path) else 0
     db_size_mb = round(db_size / (1024 * 1024), 2)
     
-    return templates.TemplateResponse(request, "superadmin.html", {"db_size_mb": db_size_mb})
+    return templates.TemplateResponse(
+        request, 
+        "superadmin.html", 
+        {
+            "db_size_mb": db_size_mb,
+            "user_count": user_count,
+            "club_count": club_count,
+            "dive_count": dive_count,
+        }
+    )
