@@ -46,6 +46,13 @@ sqlite3 /data/scubaduikers.db \
   "UPDATE user SET is_superadmin = 1 WHERE email = 'your-email@example.com';"
 ```
 
+of met python aangezien the containers de sqlite3 CLI niet bevatten
+
+```python
+kubectl exec -n scubaduikers scubaduikers-xx-yy -c scubaduikers -- \
+  python3 -c "import sqlite3; conn = sqlite3.connect('/data/scubaduikers.db'); conn.execute(\"UPDATE user SET is_superadmin = 1 WHERE email = 'user@mail.com'\"); conn.commit(); conn.close()"
+```
+
 ## docs
 
 uv & fastapi [docs](https://docs.astral.sh/uv/guides/integration/fastapi/)  
