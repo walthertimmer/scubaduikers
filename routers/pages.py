@@ -6,7 +6,7 @@ import re
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 
 from database import get_session
 from mail import send_password_reset_email, send_verification_email
@@ -391,9 +391,9 @@ async def admin_page(request: Request, session: Session = Depends(get_session)):
         return RedirectResponse("/", status_code=303)
     
     # Count entities
-    user_count = session.exec(select(User)).count()
-    club_count = session.exec(select(DivingClub)).count()
-    dive_count = session.exec(select(Dive)).count()
+    user_count = session.exec(select(func.count()).select_from(User)).one()
+    club_count = session.exec(select(func.count()).select_from(DivingClub)).one()
+    dive_count = session.exec(select(func.count()).select_from(Dive)).one()
     
     # Calculate database size
     db_path = os.environ.get("DATABASE_PATH", "scubaduikers.db")
